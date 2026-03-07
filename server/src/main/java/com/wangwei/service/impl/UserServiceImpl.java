@@ -1,7 +1,6 @@
 package com.wangwei.service.impl;
 
-import com.wangwei.dto.UserLoginDTO;
-import com.wangwei.entity.User;
+import com.wangwei.dto.LoginDTO;
 import com.wangwei.mapper.UserMapper;
 import com.wangwei.properties.JwtProperties;
 import com.wangwei.service.UserService;
@@ -23,12 +22,17 @@ public class UserServiceImpl implements UserService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtProperties jwtProperties;
 
+    /**
+     * 登录
+     * @param loginDTO
+     * @return
+     */
     @Override
-    public UserVO login(UserLoginDTO userLoginDTO) {
-        if (userLoginDTO.getUsername() == null || userLoginDTO.getPassword() == null) {
+    public UserVO login(LoginDTO loginDTO) {
+        if (loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
             throw new IllegalArgumentException("用户名或密码不能为空");
         }
-        UserVO userVO = userMapper.login(userLoginDTO);
+        UserVO userVO = userMapper.login(loginDTO);
         // 校验用户是否存在
         if (userVO == null) {
             throw new IllegalArgumentException("用户名或密码错误");
@@ -43,5 +47,16 @@ public class UserServiceImpl implements UserService {
         redisTemplate.opsForValue().set(key, token, jwtProperties.getTtl(), TimeUnit.SECONDS);
 
         return userVO;
+    }
+
+    /**
+     * 登出
+     * @param userId
+     */
+    @Override
+    public void logout(Integer userId) {
+        // 清理Redis中对应的token
+        String key = "login:user:" + userId;
+        redisTemplate.delete(key);
     }
 }

@@ -1,8 +1,10 @@
 package com.wangwei.service;
 
-import com.wangwei.dto.UserLoginDTO;
+import com.wangwei.dto.LoginDTO;
 import com.wangwei.vo.UserVO;
 
 public interface UserService {
-    UserVO login(UserLoginDTO userLoginDTO);
+    UserVO login(LoginDTO loginDTO);
+
+    void logout(Integer userId);
 }
