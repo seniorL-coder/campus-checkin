@@ -1,0 +1,38 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: campus-checkin
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+  # 定义Jackson序列化日期格式
+  Jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+  datasource:
+    driver-class-name: ${sky.datasource.driver-class-name}
+    url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${sky.datasource.username}
+    password: ${sky.datasource.password}
+  data:
+    redis:
+      host: ${sky.redis.host}
+      port: ${sky.redis.port}
+      database: ${sky.redis.database}
+mybatis:
+  #mapper配置文件
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.sky.entity
+  configuration:
+    #开启驼峰命名
+    map-underscore-to-camel-case: true
+campus:
+  jwt:
+    secret-key: seniorL-super-secret-key-for-jwt-authentication-2026
+    # 86400000 = 24小时
+    ttl: 86400000
+    token-name: Authorization
