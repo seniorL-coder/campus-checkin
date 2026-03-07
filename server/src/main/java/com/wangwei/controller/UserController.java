@@ -16,20 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/user/user")
 @RequiredArgsConstructor
-@Tag(name = "用户管理", description = "用户管理相关接口")
+@Tag(name = "用户管理")
 public class UserController {
     private final UserService userService;
 
     // 登录接口
     @PostMapping("/login")
-    @Operation(summary = "用户登录", description = "用户登录接口")
+    @Operation(summary = "用户登录")
     public Result<UserVO> login(@RequestBody LoginDTO loginDTO) {
         UserVO userVO = userService.login(loginDTO);
         return Result.success(userVO);
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "用户登出", description = "用户登出接口")
+    @Operation(summary = "用户登出")
     public Result<?> logout(@RequestBody LogoutDTO logoutDTO) {
         Integer userId = logoutDTO.getUserId();
         userService.logout(userId);
