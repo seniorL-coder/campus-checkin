@@ -1,10 +1,13 @@
 package com.wangwei.service.impl;
 
 import com.wangwei.dto.LoginDTO;
+import com.wangwei.exception.LoginFailedException;
+import com.wangwei.exception.PasswordErrorException;
 import com.wangwei.mapper.UserMapper;
 import com.wangwei.properties.JwtProperties;
 import com.wangwei.service.UserService;
 import com.wangwei.utils.JwtUtils;
+import com.wangwei.vo.LoginVO;
 import com.wangwei.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -28,25 +31,25 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public UserVO login(LoginDTO loginDTO) {
+    public LoginVO login(LoginDTO loginDTO) {
         if (loginDTO.getUsername() == null || loginDTO.getPassword() == null) {
-            throw new IllegalArgumentException("用户名或密码不能为空");
+            throw new LoginFailedException("用户名或密码不能为空");
         }
-        UserVO userVO = userMapper.login(loginDTO);
+        LoginVO loginVO = userMapper.login(loginDTO);
         // 校验用户是否存在
-        if (userVO == null) {
-            throw new IllegalArgumentException("用户名或密码错误");
+        if (loginVO == null) {
+            throw new PasswordErrorException("用户名或密码错误");
         }
-        String key = "login:user:" + userVO.getId();
+        String key = "login:user:" + loginVO.getId();
         Map<String, Object> claims = new HashMap<>();
-        claims.put("username", userVO.getUsername());
-        claims.put("role", userVO.getRole());
+        claims.put("username", loginVO.getUsername());
+        claims.put("role", loginVO.getRole());
         String token = jwtUtils.generateToken(claims);
-        userVO.setToken(token);
+        loginVO.setToken(token);
         // 存入Redis , 这里 直接用 key 作为键, 覆盖掉旧的值 实现 单点登录
         redisTemplate.opsForValue().set(key, token, jwtProperties.getTtl(), TimeUnit.SECONDS);
 
-        return userVO;
+        return loginVO;
     }
 
     /**
@@ -58,5 +61,10 @@ public class UserServiceImpl implements UserService {
         // 清理Redis中对应的token
         String key = "login:user:" + userId;
         redisTemplate.delete(key);
+    }
+
+    @Override
+    public UserVO info(Integer userId) {
+        return userMapper.getUserInfoById(userId);
     }
 }

@@ -4,7 +4,7 @@
 <mapper namespace="com.wangwei.mapper.UserMapper">
 
 
-    <select id="login" resultType="com.wangwei.vo.UserVO">
+    <select id="login" resultType="com.wangwei.vo.LoginVO">
         select id, username, real_name, role
         from t_user
         where username = #{username}

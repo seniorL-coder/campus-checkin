@@ -16,6 +16,11 @@ public class UserVO implements Serializable {
     private String realName;
     @Schema(description = "用户角色 0:学生 1:老师")
     private String role;
-    @Schema(description = "用户令牌")
-    private String token;
+    @Schema(description = "头像")
+    private String avatar;
+    @Schema(description = "创建时间")
+    private String createTime;
+    @Schema(description = "更新时间")
+    private String updateTime;
+
 }
