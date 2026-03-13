@@ -3,8 +3,12 @@ package com.wangwei.mapper;
 import com.wangwei.annotation.AutoFill;
 import com.wangwei.entity.Class;
 import com.wangwei.enumeration.OperationType;
+import com.wangwei.vo.ClassVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface ClassMapper {
@@ -27,4 +31,11 @@ public interface ClassMapper {
      */
     @Delete("delete from t_class where id = #{id}")
     void deleteById(Integer id);
+
+    /**
+     * 根据id获取班级信息
+     * @param id
+     * @return
+     */
+    List<ClassVO> list(Long id);
 }

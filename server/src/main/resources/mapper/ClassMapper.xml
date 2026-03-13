@@ -22,4 +22,11 @@
         </set>
         where id = #{id}
     </update>
+    <select id="list" resultType="com.wangwei.vo.ClassVO">
+        select tc.*, tctr.teacher_id, tu.real_name as teacher_name
+        from t_class tc
+                 join t_class_teacher_relation tctr on tc.id = tctr.class_id
+                 join t_user tu on tctr.teacher_id = tu.id
+        where tctr.teacher_id = #{id}
+    </select>
 </mapper>

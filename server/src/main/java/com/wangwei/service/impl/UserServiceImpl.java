@@ -46,6 +46,7 @@ public class UserServiceImpl implements UserService {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", loginVO.getUsername());
         claims.put("role", loginVO.getRole());
+        claims.put("userId", loginVO.getId());
         String token = jwtUtils.generateToken(claims);
         loginVO.setToken(token);
         // 存入Redis , 这里 直接用 key 作为键, 覆盖掉旧的值 实现 单点登录

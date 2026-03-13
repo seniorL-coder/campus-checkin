@@ -2,6 +2,9 @@ package com.wangwei.service;
 
 import com.wangwei.dto.AddClassDTO;
 import com.wangwei.dto.UpdateClassDTO;
+import com.wangwei.vo.ClassVO;
+
+import java.util.List;
 
 public interface ClassService {
     /**
@@ -21,4 +24,10 @@ public interface ClassService {
      * @param id
      */
     void deleteById(Integer id);
+
+    /**
+     * 获取所有班级列表
+     * @return
+     */
+    List<ClassVO> list();
 }

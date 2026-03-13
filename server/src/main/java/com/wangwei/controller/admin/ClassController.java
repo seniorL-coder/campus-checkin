@@ -4,11 +4,15 @@ import com.wangwei.dto.AddClassDTO;
 import com.wangwei.dto.UpdateClassDTO;
 import com.wangwei.result.Result;
 import com.wangwei.service.ClassService;
+import com.wangwei.vo.ClassVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/admin/class")
@@ -37,5 +41,12 @@ public class ClassController {
     public Result<String> deleteClass(@PathVariable Integer id) {
         classService.deleteById(id);
         return Result.success("删除班级成功");
+    }
+
+    // 根据教师ID获取班级列表
+    @GetMapping("/list")
+    @Operation(summary = "获取班级列表")
+    public Result<List<ClassVO>> list() {
+        return Result.success(classService.list());
     }
 }

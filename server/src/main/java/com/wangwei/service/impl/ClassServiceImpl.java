@@ -1,5 +1,6 @@
 package com.wangwei.service.impl;
 
+import com.wangwei.context.BaseContext;
 import com.wangwei.dto.AddClassDTO;
 import com.wangwei.dto.UpdateClassDTO;
 import com.wangwei.entity.Class;
@@ -10,6 +11,7 @@ import com.wangwei.mapper.ClassMapper;
 import com.wangwei.mapper.UserMapper;
 import com.wangwei.service.ClassService;
 import com.wangwei.service.ClassTeacherRelationService;
+import com.wangwei.vo.ClassVO;
 import com.wangwei.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -67,5 +69,15 @@ public class ClassServiceImpl implements ClassService {
         } else {
             throw new ResourceNotEmptyException("班级下有学生，不允许删除");
         }
+    }
+
+    /**
+     * 获取所有班级列表
+     * @return
+     */
+    @Override
+    public List<ClassVO> list() {
+        Long id = BaseContext.getCurrentId();
+        return classMapper.list(id);
     }
 }
