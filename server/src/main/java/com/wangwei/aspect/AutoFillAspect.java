@@ -47,15 +47,16 @@ public class AutoFillAspect {
             try {
                 Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);
                 Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
-                Method setCreateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);
-                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
+//                Method setCreateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_USER, Long.class);
+//                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
 
                 LocalDateTime now = LocalDateTime.now();
-                Long currentId = BaseContext.getCurrentId();
+//                Long currentId = BaseContext.getCurrentId();
                 setCreateTime.invoke(entity, now);
                 setUpdateTime.invoke(entity, now);
-                setCreateUser.invoke(entity, currentId);
-                setUpdateUser.invoke(entity, currentId);
+//                setCreateUser.invoke(entity, currentId);
+//                setUpdateUser.invoke(entity, currentId);
+                log.info("entity: {}", entity);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -66,14 +67,14 @@ public class AutoFillAspect {
             // 通过反射, 拿到两个set方法
             try {
                 Method setUpdateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_TIME, LocalDateTime.class);
-                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
+//                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
 
                 LocalDateTime now = LocalDateTime.now();
                 Long currentId = BaseContext.getCurrentId();
 
                 setUpdateTime.invoke(entity, now);
-                setUpdateUser.invoke(entity, currentId);
-
+//                setUpdateUser.invoke(entity, currentId);
+                log.info("entity: {}", entity);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -1,4 +1,4 @@
-package com.wangwei.controller;
+package com.wangwei.controller.admin;
 
 import com.wangwei.dto.LogoutDTO;
 import com.wangwei.dto.LoginDTO;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user/user")
+@RequestMapping("/admin/user")
 @RequiredArgsConstructor
 @Tag(name = "用户管理")
 @Slf4j
@@ -37,7 +37,7 @@ public class UserController {
         log.info("userId退出登录: {}", logoutDTO.getUserId());
         Integer userId = logoutDTO.getUserId();
         userService.logout(userId);
-        return Result.success();
+        return Result.success("退出登录成功");
     }
     @PostMapping("/info")
     @Operation(summary = "获取用户信息")

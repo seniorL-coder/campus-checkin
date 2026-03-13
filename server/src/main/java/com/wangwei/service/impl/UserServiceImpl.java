@@ -1,6 +1,7 @@
 package com.wangwei.service.impl;
 
 import com.wangwei.dto.LoginDTO;
+import com.wangwei.entity.User;
 import com.wangwei.exception.LoginFailedException;
 import com.wangwei.exception.PasswordErrorException;
 import com.wangwei.mapper.UserMapper;
@@ -14,6 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -66,5 +68,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO info(Integer userId) {
         return userMapper.getUserInfoById(userId);
+    }
+
+    /**
+     * 根据班级ID获取学生列表
+     * @param classId 班级ID
+     * @return 学生列表
+     */
+    @Override
+    public List<UserVO> getStudentsByClassId(Integer classId) {
+        return userMapper.getStudentsByClassId(classId);
     }
 }

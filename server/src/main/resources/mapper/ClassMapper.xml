@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangwei.mapper.ClassMapper">
+
+    <insert id="add" parameterType="com.wangwei.entity.Class" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO t_class (class_name, major)
+        VALUES (#{name}, #{major})
+    </insert>
+    <update id="updateById" parameterType="com.wangwei.entity.Class">
+        update t_class
+        <set>
+            <if test="className != '' and className != null">
+                class_name = #{className},
+            </if>
+            <if test="major != '' and major != null">
+                major = #{major},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+</mapper>
