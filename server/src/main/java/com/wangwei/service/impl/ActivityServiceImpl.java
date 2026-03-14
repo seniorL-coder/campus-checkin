@@ -81,4 +81,9 @@ public class ActivityServiceImpl implements ActivityService {
         });
         log.info("活动创建成功: {}", activity.getId());
     }
+
+    @Override
+    public Activity getActivityById(Long activityId) {
+        return activityMapper.getActivityById(activityId);
+    }
 }

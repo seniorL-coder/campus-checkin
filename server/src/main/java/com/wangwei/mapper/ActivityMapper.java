@@ -9,6 +9,7 @@ import com.wangwei.enumeration.OperationType;
 import com.wangwei.vo.ClassVO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -23,4 +24,12 @@ public interface ActivityMapper {
     @AutoFill(value = OperationType.INSERT)
     void insert(Activity activity);
 
+    /**
+     * 根据id获取活动记录
+     *
+     * @param activityId 活动记录id
+     * @return 活动记录
+     */
+    @Select("SELECT id, title, start_time, end_time, longitude, latitude, radius, target_classes, create_user_id, create_time, update_time  FROM t_activity WHERE id = #{activityId}")
+    Activity getActivityById(Long activityId);
 }

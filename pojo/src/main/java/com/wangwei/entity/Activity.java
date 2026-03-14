@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -15,8 +16,10 @@ public class Activity {
     private Long id;
     private String title;
     // 开始时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String startTime;
     // 结束时间
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String endTime;
     // 中心点经度
     private Double longitude;

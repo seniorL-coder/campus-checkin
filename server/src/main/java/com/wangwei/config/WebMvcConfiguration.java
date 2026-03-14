@@ -21,6 +21,8 @@ import java.util.List;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
+    private final JwtTokenUserInterceptor jwtTokenAdminInterceptor;
+
     /**
      * 注册自定义拦截器
      *
@@ -29,7 +31,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
-        registry.addInterceptor(jwtTokenUserInterceptor)
+        registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns(
                         "/admin/user/login",
@@ -39,12 +41,16 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         "/webjars/**",
                         "/favicon.ico"
                 );
+        registry.addInterceptor(jwtTokenUserInterceptor)
+                .addPathPatterns("/user/**")
+                .excludePathPatterns("/user/user/login");
     }
 
+
     // 配置消息转换器，使用自定义的ObjectMapper进行JSON序列化和反序列化，解决时间戳问题
-//    @Bean
-//    public ObjectMapper objectMapper() {
-//        return new JacksonObjectMapper();
-//    }
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new JacksonObjectMapper();
+    }
 
 }

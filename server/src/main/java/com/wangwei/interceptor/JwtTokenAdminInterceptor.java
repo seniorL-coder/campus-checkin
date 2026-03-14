@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.util.Objects;
@@ -23,9 +23,8 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 @Order(1) // 指定拦截器的顺序，数字越小，优先级越高
-public class JwtTokenUserInterceptor implements HandlerInterceptor {
-    private static final String REDIS_PREFIX_KEY = "login:user:";
-
+public class JwtTokenAdminInterceptor implements HandlerInterceptor {
+    private  static final String  REDIS_PREFIX_KEY = "login:user:";
     private final JwtProperties jwtProperties;
     private final JwtUtils jwtUtils;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -61,9 +60,9 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             Claims claims = jwtUtils.parseToken(token);
             log.info("claims:{}", claims);
             Long userId = Long.valueOf(claims.get("userId").toString());
-            // 如果 role != 0, 则不是学生, 拒绝访问
+            // 如果role != 1, 则不是超级管理员, 拒绝访问
             int role = Integer.parseInt(claims.get("role").toString());
-            if (role != 0) {
+            if (role != 1) {
                 log.info("无权限访问");
                 response.setStatus(401);
                 return false;

@@ -74,6 +74,7 @@
             <version>${jjwt.version}</version>
             <scope>runtime</scope>
         </dependency>
+
     </dependencies>
 </dependencyManagement>
 
