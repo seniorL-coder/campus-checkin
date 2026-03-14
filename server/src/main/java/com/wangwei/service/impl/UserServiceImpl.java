@@ -73,11 +73,11 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 根据班级ID获取学生列表
-     * @param classId 班级ID
+     * @param classIds 班级ID 列表，用逗号分隔
      * @return 学生列表
      */
     @Override
-    public List<UserVO> getStudentsByClassId(Integer classId) {
-        return userMapper.getStudentsByClassId(classId);
+    public List<UserVO> getStudentsByClassIds(List<Integer> classIds) {
+        return userMapper.getStudentsByClassIds(classIds);
     }
 }

@@ -41,4 +41,10 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(Exception.class)
+    public Result exceptionHandler(Exception ex) {
+        log.error("系统异常：", ex);
+        return Result.error(MessageConstant.UNKNOWN_ERROR);
+    }
+
 }

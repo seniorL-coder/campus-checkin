@@ -60,7 +60,7 @@ public class ClassServiceImpl implements ClassService {
         // 首先要确认班级下没有学生
         // 1. 有学生则不允许删除
         // 2. 没有学生则允许删除(同时要删除班级与教师关系)
-        List<UserVO> students = userMapper.getStudentsByClassId(id);
+        List<UserVO> students = userMapper.getStudentsByClassIds(List.of(id));
         if(Objects.isNull(students) || students.isEmpty()) {
             // 删除班级
             classMapper.deleteById(id);

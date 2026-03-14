@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangwei.mapper.NotificationMapper">
+
+
+    <insert id="insertNotifications" parameterType="com.wangwei.entity.Notification">
+        INSERT INTO t_notification (user_id, activity_id, content, is_read, create_time)
+        VALUES
+        <foreach collection="notifications" item="notification" separator=",">
+            (#{notification.userId}, #{notification.activityId}, #{notification.content}, #{notification.isRead},
+            #{notification.createTime})
+        </foreach>
+    </insert>
+</mapper>

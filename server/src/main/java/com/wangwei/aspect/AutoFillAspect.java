@@ -56,7 +56,6 @@ public class AutoFillAspect {
                 setUpdateTime.invoke(entity, now);
 //                setCreateUser.invoke(entity, currentId);
 //                setUpdateUser.invoke(entity, currentId);
-                log.info("entity: {}", entity);
 
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -70,11 +69,10 @@ public class AutoFillAspect {
 //                Method setUpdateUser = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_UPDATE_USER, Long.class);
 
                 LocalDateTime now = LocalDateTime.now();
-                Long currentId = BaseContext.getCurrentId();
+//                Long currentId = BaseContext.getCurrentId();
 
                 setUpdateTime.invoke(entity, now);
 //                setUpdateUser.invoke(entity, currentId);
-                log.info("entity: {}", entity);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

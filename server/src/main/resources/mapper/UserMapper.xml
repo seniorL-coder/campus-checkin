@@ -10,17 +10,20 @@
         where username = #{username}
           and password = #{password}
     </select>
-    <select id="getStudentsByClassId" resultType="com.wangwei.vo.UserVO">
+    <select id="getStudentsByClassIds" resultType="com.wangwei.vo.UserVO">
         select id,
-               username,
-               real_name,
-               role,
-               class_id,
-               avatar,
-               create_time,
-               update_time
+        username,
+        real_name,
+        role,
+        class_id,
+        avatar,
+        create_time,
+        update_time
         from t_user
-        where class_id = #{classId}
-          and role = 0
+        where class_id in
+        <foreach collection="classIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and role = 0
     </select>
 </mapper>

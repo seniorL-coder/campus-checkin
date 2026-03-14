@@ -21,9 +21,9 @@ public interface UserService {
 
     /**
      * 根据班级ID获取学生列表
-      * @param classId 班级ID
+     * @param classIds 班级ID 列表，用逗号分隔
      * @return 学生列表
      */
-    List<UserVO> getStudentsByClassId(Integer classId);
+    List<UserVO> getStudentsByClassIds(List<Integer> classIds);
 
 }

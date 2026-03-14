@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangwei.mapper.CheckInMapper">
+
+    <insert id="insertCheckIns">
+        INSERT INTO t_check_in (user_id, activity_id, check_time, lon, lat, status)
+        VALUES
+        <foreach collection="checkIns" item="checkIn" separator=",">
+            (#{checkIn.userId}, #{checkIn.activityId}, #{checkIn.checkTime}, #{checkIn.lon}, #{checkIn.lat},
+            #{checkIn.status})
+        </foreach>
+    </insert>
+</mapper>

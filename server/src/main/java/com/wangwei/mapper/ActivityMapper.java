@@ -1,0 +1,26 @@
+package com.wangwei.mapper;
+
+import com.wangwei.annotation.AutoFill;
+import com.wangwei.entity.Activity;
+import com.wangwei.entity.CheckIn;
+import com.wangwei.entity.Class;
+import com.wangwei.entity.Notification;
+import com.wangwei.enumeration.OperationType;
+import com.wangwei.vo.ClassVO;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+
+@Mapper
+public interface ActivityMapper {
+
+    /**
+     * 插入一条活动记录
+     *
+     * @param activity 活动记录
+     */
+    @AutoFill(value = OperationType.INSERT)
+    void insert(Activity activity);
+
+}
