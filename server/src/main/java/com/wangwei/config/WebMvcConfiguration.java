@@ -1,6 +1,7 @@
 package com.wangwei.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wangwei.interceptor.JwtTokenAdminInterceptor;
 import com.wangwei.interceptor.JwtTokenUserInterceptor;
 import com.wangwei.json.JacksonObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.util.List;
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
     private final JwtTokenUserInterceptor jwtTokenUserInterceptor;
-    private final JwtTokenUserInterceptor jwtTokenAdminInterceptor;
+    private final JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
     /**
      * 注册自定义拦截器

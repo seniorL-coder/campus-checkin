@@ -5,15 +5,14 @@ import com.wangwei.context.BaseContext;
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
-import com.wangwei.exception.AlreadyCheckedInException;
-import com.wangwei.exception.CheckInRecordNotFoundException;
-import com.wangwei.exception.CheckInTimeOutOfRangeException;
-import com.wangwei.exception.DistanceOverTargetRadiusException;
+import com.wangwei.exception.*;
 import com.wangwei.mapper.CheckInMapper;
+import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.CheckInService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import com.wangwei.utils.GeoUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,11 @@ import java.time.format.DateTimeFormatter;
 @Service
 @RequiredArgsConstructor
 public class CheckInServiceImpl implements CheckInService {
+
+    private static final String SIGN_TOKEN_PREFIX = "sign_token:";
+
     private final CheckInMapper checkInMapper;
+    private final RedisTemplate<String, String> redisTemplate;
     private final ActivityService activityService;
 
 
@@ -35,9 +38,20 @@ public class CheckInServiceImpl implements CheckInService {
     public void checkIn(CheckInDTO checkInDTO) {
         // 1.  根据 传入的 userId 和 activityId 查询签到信息
         Long userId = BaseContext.getCurrentId();
+        Long activityId = checkInDTO.getActivityId();
+
+        // 2. 校验 Redis 中的 Token
+        String redisKey = SIGN_TOKEN_PREFIX + activityId;
+        String validToken = redisTemplate.opsForValue().get(redisKey);
+        if (validToken == null) {
+            throw new QrCodeExpiredException("二维码已失效，请刷新后重试");
+        }
+        if (!validToken.equals(checkInDTO.getToken())) {
+            throw new InvalidCheckInTokenException("签到凭证无效，请重新扫码");
+        }
 
         log.info("userId: {}", userId);
-        CheckIn record = getRecordByUserIdAndActivityId(userId, checkInDTO.getActivityId());
+        CheckIn record = getRecordByUserIdAndActivityId(userId, activityId);
         if (record == null) {
             throw new CheckInRecordNotFoundException("签到记录不存在");
         }
@@ -45,7 +59,7 @@ public class CheckInServiceImpl implements CheckInService {
             throw new AlreadyCheckedInException("已签到");
         }
         // 2. 如果t_check_in 活动记录存在, 通过 activityId 查询活动信息
-        Activity activity = activityService.getActivityById(checkInDTO.getActivityId());
+        Activity activity = activityService.getActivityById(activityId);
         if (activity == null) {
             throw new CheckInRecordNotFoundException("活动不存在");
         }
@@ -68,7 +82,7 @@ public class CheckInServiceImpl implements CheckInService {
         if (distance > radius) {
             CheckIn checkIn = CheckIn.builder()
                     .userId(userId)
-                    .activityId(checkInDTO.getActivityId())
+                    .activityId(activityId)
                     .checkTime(LocalDateTime.now().toString())
                     .status(3).build();
             checkInMapper.updateCheckInStatus(checkIn); // 3: 签到距离超过目标范围
@@ -77,7 +91,7 @@ public class CheckInServiceImpl implements CheckInService {
         // 5. 如果满足条件, 更新 t_check_in 表中的签到状态为已签到
         CheckIn checkIn = CheckIn.builder()
                 .userId(userId)
-                .activityId(checkInDTO.getActivityId())
+                .activityId(activityId)
                 .checkTime(LocalDateTime.now().toString())
                 .status(1).build();
         checkInMapper.updateCheckInStatus(checkIn); // 1: 已签到
@@ -93,6 +107,5 @@ public class CheckInServiceImpl implements CheckInService {
     @Override
     public CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId) {
         return checkInMapper.getRecordByUserIdAndActivityId(userId, activityId);
-
     }
 }

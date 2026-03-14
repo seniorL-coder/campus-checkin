@@ -2,6 +2,7 @@ package com.wangwei.service.impl;
 
 import com.wangwei.context.BaseContext;
 import com.wangwei.dto.ActivityDTO;
+import com.wangwei.dto.SignDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.entity.Notification;
@@ -14,10 +15,13 @@ import com.wangwei.vo.UserVO;
 import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -29,7 +33,9 @@ public class ActivityServiceImpl implements ActivityService {
     private final CheckInMapper checkInMapper;
     private final NotificationMapper notificationMapper;
     private final UserWebSocketServer userWebSocketServer;
+    private final RedisTemplate<String, String> redisTemplate;
 
+    private static final String SIGN_TOKEN_PREFIX = "sign_token:";
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -85,5 +91,23 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public Activity getActivityById(Long activityId) {
         return activityMapper.getActivityById(activityId);
+    }
+
+    @Override
+    public String createActivitySign(SignDTO signDTO) {
+        log.info("开始生成动态签到链接, 活动ID: {}", signDTO.getActivityId());
+
+        // 1. 生成随机 Token
+        String token = UUID.randomUUID().toString(); // 使用 UUID.randomUUID()
+
+        // 2. 存入 Redis，设置 60 秒过期 (比前端刷新频率稍微长一点点，防止卡顿失效)
+        String redisKey = SIGN_TOKEN_PREFIX + signDTO.getActivityId();
+        redisTemplate.opsForValue().set(redisKey, token, 120, TimeUnit.SECONDS);
+
+        // 3. 构建带参数的跳转 URL
+        // 这里的 baseUrl 应该是你 H5 签到页面的地址
+        String baseUrl = "/campus-check-in";
+        return String.format("%s?activityId=%s&token=%s",
+                baseUrl, signDTO.getActivityId(), token);
     }
 }

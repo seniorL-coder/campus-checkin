@@ -1,6 +1,7 @@
 package com.wangwei.controller.admin;
 
 import com.wangwei.dto.ActivityDTO;
+import com.wangwei.dto.SignDTO;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,8 +25,16 @@ public class ActivityController {
     @Operation(summary = "创建活动")
     @PostMapping("/create")
     public Result<String> createActivity(@RequestBody ActivityDTO activityDTO) {
-        log.info("创建活动11：{}", activityDTO);
+        log.info("创建活动：{}", activityDTO);
         activityService.createActivity(activityDTO);
         return Result.success("创建成功");
+    }
+    // 创建活动签到的 url 跳转连接接口
+    @Operation(summary = "创建活动签到跳转的 url")
+    @PostMapping("/sign")
+    public Result<String> createActivitySign(@RequestBody SignDTO signDTO) {
+        log.info("创建活动签到：{}", signDTO);
+        String url = activityService.createActivitySign(signDTO);
+        return Result.success(url);
     }
 }
