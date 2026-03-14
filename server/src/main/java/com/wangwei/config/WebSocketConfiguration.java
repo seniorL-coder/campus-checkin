@@ -23,11 +23,11 @@ public class WebSocketConfiguration implements WebSocketConfigurer {
 
 
         // 用户端
-        registry.addHandler(userWebSocketServer, "/ws/user/{sid}")
+        registry.addHandler(userWebSocketServer, "/ws/user")
                 .setAllowedOrigins("*");
 
         // 管理端
-        registry.addHandler(adminWebSocketServer, "/ws/admin/{sid}")
+        registry.addHandler(adminWebSocketServer, "/ws/admin")
                 .setAllowedOrigins("*");
     }
 }

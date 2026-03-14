@@ -11,6 +11,7 @@ import com.wangwei.mapper.NotificationMapper;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.UserService;
 import com.wangwei.vo.UserVO;
+import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final UserService userService;
     private final CheckInMapper checkInMapper;
     private final NotificationMapper notificationMapper;
+    private final UserWebSocketServer userWebSocketServer;
 
 
     @Override
@@ -69,6 +71,14 @@ public class ActivityServiceImpl implements ActivityService {
                 .createTime(activity.getCreateTime())
                 .build()).toList();
         notificationMapper.insertNotifications(notifications);
+        // 推送通知
+        studentIds.forEach(id -> {
+            try {
+                userWebSocketServer.sendToOne(id.toString(), "您有一个新的班级活动通知，请及时查看！");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
         log.info("活动创建成功: {}", activity.getId());
     }
 }
