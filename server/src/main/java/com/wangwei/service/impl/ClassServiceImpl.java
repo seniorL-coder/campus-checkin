@@ -24,7 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ClassServiceImpl implements ClassService {
     private final ClassMapper classMapper;
-    private  final ClassTeacherRelationService classTeacherRelationService;
+    private final ClassTeacherRelationService classTeacherRelationService;
     private final UserMapper userMapper;
 
     /**
@@ -38,9 +38,10 @@ public class ClassServiceImpl implements ClassService {
         Class newClass = Class.builder().className(addClassDTO.getClassName())
                 .major(addClassDTO.getMajor()).build();
         classMapper.add(newClass);
+        Long teacherId = BaseContext.getCurrentId();
 
         // 添加 班级与教师关系 teacherID 已经传递, class_id 已通过 mapper 配置返回
-       ClassTeacherRelation classTeacherRelation=  ClassTeacherRelation.builder().classId(newClass.getId()).teacherId(addClassDTO.getTeacherId()).build();
+        ClassTeacherRelation classTeacherRelation = ClassTeacherRelation.builder().classId(newClass.getId()).teacherId(teacherId).build();
         classTeacherRelationService.add(classTeacherRelation);
     }
 
@@ -53,6 +54,7 @@ public class ClassServiceImpl implements ClassService {
 
     /**
      * 根据id删除班级
+     *
      * @param id
      */
     @Override
@@ -61,7 +63,7 @@ public class ClassServiceImpl implements ClassService {
         // 1. 有学生则不允许删除
         // 2. 没有学生则允许删除(同时要删除班级与教师关系)
         List<UserVO> students = userMapper.getStudentsByClassIds(List.of(id));
-        if(Objects.isNull(students) || students.isEmpty()) {
+        if (Objects.isNull(students) || students.isEmpty()) {
             // 删除班级
             classMapper.deleteById(id);
             // 删除班级与教师关系
@@ -73,6 +75,7 @@ public class ClassServiceImpl implements ClassService {
 
     /**
      * 获取所有班级列表
+     *
      * @return
      */
     @Override

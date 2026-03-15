@@ -9,6 +9,7 @@ spring:
   Jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+    # 禁止 Jackson 把时间序列化成时间戳, 改为字符串时间格式
     serialization:
       write-dates-as-timestamps: false
   datasource:
@@ -28,6 +29,18 @@ mybatis:
   configuration:
     #开启驼峰命名
     map-underscore-to-camel-case: true
+    # 开启日志
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+# MyBatis 内部本来就会输出日志
+# 但是默认日志级别是 DEBUG
+# 如果你的日志系统（Spring Boot 默认 Logback）级别是 INFO，就不会显示
+# 当你配置：
+# logging.level.com.wangwei.mapper=debug
+# 相当于告诉日志框架：
+#Mapper包下的日志允许输出 DEBUG
+#logging:
+#  level:
+#    com.wangwei.mapper: DEBUG
 campus:
   jwt:
     secret-key: seniorL-super-secret-key-for-jwt-authentication-2026

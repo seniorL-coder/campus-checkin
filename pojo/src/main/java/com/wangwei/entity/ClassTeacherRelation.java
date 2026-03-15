@@ -9,7 +9,7 @@ import java.io.Serializable;
 @Builder
 public class ClassTeacherRelation implements Serializable {
     // 班级ID
-    private Integer classId;
+    private Long classId;
     // 教师ID
-    private Integer teacherId;
+    private Long teacherId;
 }

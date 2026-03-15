@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class UpdateClassDTO implements Serializable {
     @Schema(description = "班级ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer id;
+    private Long id;
     @Schema(description = "班级名称", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private String className;
     @Schema(description = "专业名称", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

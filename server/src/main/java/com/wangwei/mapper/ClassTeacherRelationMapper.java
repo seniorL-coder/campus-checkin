@@ -4,6 +4,9 @@ import com.wangwei.entity.ClassTeacherRelation;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface ClassTeacherRelationMapper {
@@ -22,4 +25,8 @@ public interface ClassTeacherRelationMapper {
      */
     @Delete("DELETE FROM t_class_teacher_relation WHERE class_id = #{id}")
     void deleteByClassId(Integer id);
+
+    // 根据教师id获取所有的班级Id
+    @Select("SELECT class_id FROM t_class_teacher_relation WHERE teacher_id = #{teacherId}")
+    List<Long> getClassesByTeacherId(Long teacherId);
 }

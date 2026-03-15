@@ -5,7 +5,7 @@
 
     <insert id="add" parameterType="com.wangwei.entity.Class" keyProperty="id" useGeneratedKeys="true">
         INSERT INTO t_class (class_name, major)
-        VALUES (#{name}, #{major})
+        VALUES (#{className}, #{major})
     </insert>
     <update id="updateById" parameterType="com.wangwei.entity.Class">
         update t_class

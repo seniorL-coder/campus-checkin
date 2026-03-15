@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangwei.mapper.StudentMapper">
+
+
+    <select id="list" resultType="com.wangwei.vo.StudentVO">
+        select
+        tu.id,
+        tu.username,
+        tu.real_name,
+        tu.role,
+        tu.class_id,
+        tu.create_time,
+        tu.update_time,
+        tu.avatar,
+        tc.class_name
+        from t_user tu
+        left join t_class tc on tu.class_id = tc.id
+        <where>
+            tu.class_id in
+            <foreach collection="classIds" item="classId" open="(" close=")" separator=",">
+                #{classId}
+            </foreach>
+            <if test="studentQueryDTO.realName != null and studentQueryDTO.realName != ''">
+                and tu.real_name like concat('%', #{studentQueryDTO.realName}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

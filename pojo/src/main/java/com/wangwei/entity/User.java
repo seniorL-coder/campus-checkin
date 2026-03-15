@@ -2,12 +2,13 @@ package com.wangwei.entity;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-@Data
+@Getter
+@Setter
+@ToString
 @Builder
 public class User implements Serializable {
 

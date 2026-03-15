@@ -49,9 +49,10 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
 
     // 配置消息转换器，使用自定义的ObjectMapper进行JSON序列化和反序列化，解决时间戳问题
-    @Bean
-    public ObjectMapper objectMapper() {
-        return new JacksonObjectMapper();
-    }
+    // 可以直接在Spring Boot中配置 ObjectMapper 的日期解析格式
+//    @Bean
+//    public ObjectMapper objectMapper() {
+//        return new JacksonObjectMapper();
+//    }
 
 }

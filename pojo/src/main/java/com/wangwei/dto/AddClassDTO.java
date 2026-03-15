@@ -14,12 +14,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class AddClassDTO implements Serializable {
-
     @Schema(description = "班级名称", requiredMode = Schema.RequiredMode.REQUIRED)
     private String className;
     @Schema(description = "专业名称", requiredMode = Schema.RequiredMode.REQUIRED)
     private String major;
-    @Schema(description = "教师id", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Integer teacherId;
 
 }

@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Class implements Serializable {
     @Schema(description = "班级ID")
-    private Integer id;
+    private Long id;
     @Schema(description = "班级名称")
     private String className;
     @Schema(description = "专业名称")

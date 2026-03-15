@@ -50,7 +50,6 @@ public class CheckInServiceImpl implements CheckInService {
             throw new InvalidCheckInTokenException("签到凭证无效，请重新扫码");
         }
 
-        log.info("userId: {}", userId);
         CheckIn record = getRecordByUserIdAndActivityId(userId, activityId);
         if (record == null) {
             throw new CheckInRecordNotFoundException("签到记录不存在");
