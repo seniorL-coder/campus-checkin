@@ -2,6 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.wangwei.mapper.StudentMapper">
+    <insert id="add" parameterType="com.wangwei.entity.Student">
+        insert into t_user
+        (username,
+         password,
+         real_name,
+         role,
+         class_id,
+         create_time,
+         update_time,
+         avatar)
+        values (#{username}, #{password}, #{realName}, #{role}, #{classId}, #{createTime}, #{updateTime}, #{avatar});
+    </insert>
 
 
     <select id="list" resultType="com.wangwei.vo.StudentVO">

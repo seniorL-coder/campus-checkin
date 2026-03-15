@@ -1,5 +1,6 @@
 package com.wangwei.controller.admin;
 
+import com.wangwei.dto.StudentDTO;
 import com.wangwei.dto.StudentQueryDTO;
 import com.wangwei.result.PageResult;
 import com.wangwei.result.Result;
@@ -27,5 +28,12 @@ public class StudentController {
     public Result<PageResult<StudentVO>> list(@RequestBody StudentQueryDTO studentQueryDTO) {
         PageResult<StudentVO> list = studentService.list(studentQueryDTO);
         return Result.success(list);
+    }
+    // 添加学生
+    @Operation(summary = "添加学生")
+    @PostMapping
+    public Result<String> add(@RequestBody StudentDTO studentDTO) {
+        studentService.add(studentDTO);
+        return Result.success("添加成功");
     }
 }
