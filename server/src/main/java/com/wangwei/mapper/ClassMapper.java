@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
+import java.util.Set;
 
 @Mapper
 public interface ClassMapper {
@@ -38,4 +39,11 @@ public interface ClassMapper {
      * @return
      */
     List<ClassVO> list(Long id);
+
+    /**
+     * 根据多个id获取班级信息
+     * @param allClassIds
+     * @return
+     */
+    List<ClassVO> selectBatchIds(Set<Long> allClassIds);
 }

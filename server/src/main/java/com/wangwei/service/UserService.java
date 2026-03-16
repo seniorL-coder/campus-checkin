@@ -14,10 +14,9 @@ public interface UserService {
 
     /**
      * 根据用户ID获取用户信息
-     * @param userId 用户ID
      * @return 用户信息
      */
-    UserVO info(Integer userId);
+    UserVO info();
 
     /**
      * 根据班级ID获取学生列表

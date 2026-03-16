@@ -4,10 +4,12 @@ import com.wangwei.constant.MessageConstant;
 import com.wangwei.exception.BaseException;
 import com.wangwei.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.Arrays;
 
 /**
  * 全局异常处理器，处理项目中抛出的业务异常
@@ -29,12 +31,15 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    public Result exceptionHandler(SQLIntegrityConstraintViolationException ex) {
+    public Result exceptionHandler(DuplicateKeyException ex) {
         // Duplicate entry 'sunwukong' for key 'employee.idx_username'
         String message = ex.getMessage();
         if (message.contains("Duplicate entry")) {
-            String username = message.split(" ")[2];
-            return Result.error(username + MessageConstant.ALREADY_EXISTS);
+            String[] s = message.split(" ");
+            int index = Arrays.asList(s).indexOf("Duplicate");
+            String username = s[index + 2];
+            log.info("重复键：{}", username);
+            return Result.error(username + " " + MessageConstant.ALREADY_EXISTS);
         } else {
             return Result.error(MessageConstant.UNKNOWN_ERROR);
         }

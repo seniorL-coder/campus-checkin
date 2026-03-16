@@ -10,5 +10,24 @@
         VALUES (#{title}, #{startTime}, #{endTime}, #{longitude}, #{latitude}, #{radius}, #{targetClasses},
                 #{createUserId})
     </insert>
+    <select id="list" resultType="com.wangwei.vo.ActivityVO">
+        select id, title, start_time, end_time, longitude, latitude, radius, target_classes, create_user_id, create_time, update_time
+        from t_activity
+        <where>
+            <if test="title != null and title != ''">
+                and title like concat('%', #{title}, '%')
+            </if>
+            <if test="startTime != null">
+                and start_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and end_time &lt;= #{endTime}
+            </if>
+            <if test="targetClasses != null and targetClasses != ''">
+                and target_classes like concat('%', #{targetClasses}, '%')
+            </if>
+            and create_user_id = #{createUserId}
+        </where>
+    </select>
 
 </mapper>

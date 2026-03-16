@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Schema(description = "班级信息", requiredMode = Schema.RequiredMode.REQUIRED)
 public class ClassVO implements Serializable {
     @Schema(description = "班级ID")
-    private Integer id;
+    private Long id;
     @Schema(description = "班级名称")
     private String className;
     @Schema(description = "教师ID")

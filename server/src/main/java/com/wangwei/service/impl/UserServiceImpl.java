@@ -1,5 +1,6 @@
 package com.wangwei.service.impl;
 
+import com.wangwei.context.BaseContext;
 import com.wangwei.dto.LoginDTO;
 import com.wangwei.entity.User;
 import com.wangwei.exception.LoginFailedException;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 登录
+     *
      * @param loginDTO
      * @return
      */
@@ -57,6 +59,7 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 登出
+     *
      * @param userId
      */
     @Override
@@ -67,12 +70,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserVO info(Integer userId) {
+    public UserVO info() {
+        Long userId = BaseContext.getCurrentId();
         return userMapper.getUserInfoById(userId);
     }
 
     /**
      * 根据班级ID获取学生列表
+     *
      * @param classIds 班级ID 列表，用逗号分隔
      * @return 学生列表
      */

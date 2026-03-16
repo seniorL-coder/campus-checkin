@@ -26,7 +26,8 @@
         tu.create_time,
         tu.update_time,
         tu.avatar,
-        tc.class_name
+        tc.class_name,
+        tc.id
         from t_user tu
         left join t_class tc on tu.class_id = tc.id
         <where>
@@ -38,5 +39,6 @@
                 and tu.real_name like concat('%', #{studentQueryDTO.realName}, '%')
             </if>
         </where>
+        order by tu.update_time desc, tu.id desc
     </select>
 </mapper>

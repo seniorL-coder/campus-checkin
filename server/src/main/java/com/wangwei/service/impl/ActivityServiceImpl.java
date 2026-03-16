@@ -1,16 +1,23 @@
 package com.wangwei.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.wangwei.context.BaseContext;
 import com.wangwei.dto.ActivityDTO;
+import com.wangwei.dto.ActivityQueryDTO;
 import com.wangwei.dto.SignDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.entity.Notification;
 import com.wangwei.mapper.ActivityMapper;
 import com.wangwei.mapper.CheckInMapper;
+import com.wangwei.mapper.ClassMapper;
 import com.wangwei.mapper.NotificationMapper;
+import com.wangwei.result.PageResult;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.UserService;
+import com.wangwei.vo.ActivityVO;
+import com.wangwei.vo.ClassVO;
 import com.wangwei.vo.UserVO;
 import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
@@ -18,10 +25,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -36,6 +45,7 @@ public class ActivityServiceImpl implements ActivityService {
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String SIGN_TOKEN_PREFIX = "sign_token:";
+    private final ClassMapper classMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -109,5 +119,55 @@ public class ActivityServiceImpl implements ActivityService {
         String baseUrl = "/campus-check-in";
         return String.format("%s?activityId=%s&token=%s",
                 baseUrl, signDTO.getActivityId(), token);
+    }
+
+    @Override
+    public PageResult<ActivityVO> list(ActivityQueryDTO activityQueryDTO) {
+        activityQueryDTO.setCreateUserId(BaseContext.getCurrentId());
+        // 1. 开启分页
+        PageHelper.startPage(activityQueryDTO.getPage(), activityQueryDTO.getLimit());
+
+        // 2. 执行查询
+        List<ActivityVO> list = activityMapper.list(activityQueryDTO);
+
+        // 3. 使用 PageInfo 获取元数据（比直接强转 Page 更稳妥）
+        PageInfo<ActivityVO> pageInfo = new PageInfo<>(list);
+
+        List<ActivityVO> activityList = pageInfo.getList();
+
+        if (CollectionUtils.isEmpty(activityList)) {
+            return new PageResult<>(pageInfo.getPageNum(), pageInfo.getPages(), pageInfo.getPageSize(), pageInfo.getTotal(), activityList);
+        }
+
+        // 2. 收集所有涉及到的 Class ID
+        Set<Long> allClassIds = activityList.stream()
+                .filter(vo -> StringUtils.hasText(vo.getTargetClasses()))
+                .flatMap(vo -> Arrays.stream(vo.getTargetClasses().split(",")))
+                .map(String::trim)
+                .map(Long::valueOf)
+                .collect(Collectors.toSet());
+
+        // 3. 批量查询班级信息 (select id, name from t_class where id in (...))
+        List<ClassVO> clazzes = classMapper.selectBatchIds(allClassIds);
+        Map<Long, String> classMap = clazzes.stream()
+                .collect(Collectors.toMap(ClassVO::getId, ClassVO::getClassName));
+
+        // 4. 回填班级名称
+        activityList.forEach(vo -> {
+            if (StringUtils.hasText(vo.getTargetClasses())) {
+                String names = Arrays.stream(vo.getTargetClasses().split(","))
+                        .map(id -> classMap.getOrDefault(Long.valueOf(id.trim()), "未知班级"))
+                        .collect(Collectors.joining(","));
+                vo.setTargetClassesName(names);
+            }
+        });
+
+        return new PageResult<>(
+                pageInfo.getPageNum(),
+                pageInfo.getPages(),
+                pageInfo.getPageSize(),
+                pageInfo.getTotal(),
+                pageInfo.getList()
+        );
     }
 }

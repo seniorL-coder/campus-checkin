@@ -20,7 +20,7 @@ public interface UserMapper {
      * @return 用户信息
      */
     @Select("SELECT  id, username, password, real_name, role, class_id, create_time, update_time, avatar FROM t_user WHERE id = ${userId}")
-    UserVO getUserInfoById(Integer userId);
+    UserVO getUserInfoById(Long userId);
 
     /**
      * 根据班级ID获取学生列表

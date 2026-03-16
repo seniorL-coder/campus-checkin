@@ -1,9 +1,12 @@
 package com.wangwei.controller.admin;
 
 import com.wangwei.dto.ActivityDTO;
+import com.wangwei.dto.ActivityQueryDTO;
 import com.wangwei.dto.SignDTO;
+import com.wangwei.result.PageResult;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
+import com.wangwei.vo.ActivityVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +15,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/activity")
@@ -36,5 +41,13 @@ public class ActivityController {
         log.info("创建活动签到：{}", signDTO);
         String url = activityService.createActivitySign(signDTO);
         return Result.success(url);
+    }
+    // 分页查询活动列表
+    @Operation(summary = "分页查询活动列表")
+    @PostMapping("/list")
+    public Result<?> getActivityList(@RequestBody ActivityQueryDTO activityQueryDTO) {
+        log.info("分页查询活动列表:{}", activityQueryDTO);
+        PageResult<ActivityVO> activityVOPageResult = activityService.list(activityQueryDTO);
+        return Result.success(activityVOPageResult);
     }
 }

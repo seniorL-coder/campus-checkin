@@ -41,8 +41,8 @@ public class UserController {
     }
     @PostMapping("/info")
     @Operation(summary = "获取用户信息")
-    public Result<UserVO> info(@RequestBody LogoutDTO logoutDTO) {
-        UserVO userVO = userService.info(logoutDTO.getUserId());
+    public Result<UserVO> info() {
+        UserVO userVO = userService.info();
         return Result.success(userVO);
     }
 }

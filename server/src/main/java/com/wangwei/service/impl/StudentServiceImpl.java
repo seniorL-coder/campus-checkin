@@ -61,11 +61,12 @@ public class StudentServiceImpl implements StudentService {
      */
     @Override
     public void add(StudentDTO studentDTO) {
-        Long teacherId = BaseContext.getCurrentId();
         String defaultPassword = SHA256Util.encrypt(UserInfoConstant.DEFAULT_PASSWORD);
         // 判断头像是否为空，为空则使用默认头像
-        String avatar = StringUtils.isBlank(studentDTO.getAvatar()) ? UserInfoConstant.DEFAULT_AVATAR : studentDTO.getAvatar();
-        Student student =  Student.builder()
+        String avatar = StringUtils.isBlank(studentDTO.getAvatar())
+                ? UserInfoConstant.DEFAULT_AVATAR + studentDTO.getUsername()
+                : studentDTO.getAvatar();
+        Student student = Student.builder()
                 .username(studentDTO.getUsername())
                 .password(defaultPassword)
                 .realName(studentDTO.getRealName())

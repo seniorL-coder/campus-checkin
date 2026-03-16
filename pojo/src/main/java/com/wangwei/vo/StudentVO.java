@@ -12,5 +12,7 @@ import java.io.Serializable;
 public class StudentVO extends UserVO implements Serializable {
     @Schema(description = "班级名称")
     private String className;
+    @Schema(description = "班级ID")
+    private Long classId;
 
 }

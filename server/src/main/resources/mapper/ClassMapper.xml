@@ -29,4 +29,12 @@
                  join t_user tu on tctr.teacher_id = tu.id
         where tctr.teacher_id = #{id}
     </select>
+    <select id="selectBatchIds" resultType="com.wangwei.vo.ClassVO">
+        select id, class_name, major, create_time, update_time
+        from t_class
+        where id in
+        <foreach item="id" collection="allClassIds" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

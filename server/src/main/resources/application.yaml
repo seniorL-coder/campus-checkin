@@ -41,6 +41,11 @@ mybatis:
 #logging:
 #  level:
 #    com.wangwei.mapper: DEBUG
+page helper:
+  helperDialect: mysql
+  reasonable: true       # 启用分页合理化，pageNum<=0 时会自动查第一页
+  supportMethodsArguments: true
+  params: count=countSql
 campus:
   jwt:
     secret-key: seniorL-super-secret-key-for-jwt-authentication-2026

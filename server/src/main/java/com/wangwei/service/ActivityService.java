@@ -1,8 +1,13 @@
 package com.wangwei.service;
 
 import com.wangwei.dto.ActivityDTO;
+import com.wangwei.dto.ActivityQueryDTO;
 import com.wangwei.dto.SignDTO;
 import com.wangwei.entity.Activity;
+import com.wangwei.result.PageResult;
+import com.wangwei.vo.ActivityVO;
+
+import java.util.List;
 
 public interface ActivityService {
 
@@ -25,4 +30,11 @@ public interface ActivityService {
      * @return
      */
     String createActivitySign(SignDTO signDTO);
+
+    /**
+     * 分页查询活动列表
+     * @param activityQueryDTO
+     * @return
+     */
+    PageResult<ActivityVO> list(ActivityQueryDTO activityQueryDTO);
 }
