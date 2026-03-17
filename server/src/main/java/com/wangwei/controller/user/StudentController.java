@@ -30,4 +30,11 @@ public class StudentController {
         return Result.success(studentVO);
     }
 
+    @Operation(summary = "学生退出登录")
+    @PostMapping("/logout")
+    public Result<String> logout() {
+        studentService.logout();
+        return Result.success("退出登录成功");
+    }
+
 }

@@ -30,4 +30,9 @@ public interface StudentService {
      * @param  studentLoginDTO username and password
      */
     StudentVO login(StudentLoginDTO studentLoginDTO);
+
+    /**
+     * 登出
+     */
+    void logout();
 }

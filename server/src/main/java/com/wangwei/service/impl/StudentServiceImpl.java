@@ -35,13 +35,13 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final StudentMapper studentMapper;
     private final ClassTeacherRelationMapper classTeacherRelationMapper;
     private final JwtUtils jwtUtils;
     private final JwtProperties jwtProperties;
 
-    private static final String REDIS_TOKEN_KEY = "login:user";
+    private static final String REDIS_TOKEN_KEY = "login:student:";
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -129,6 +129,16 @@ public class StudentServiceImpl implements StudentService {
                 .token(token)
                 .createTime(student.getCreateTime())
                 .updateTime(student.getUpdateTime()).build();
+
+    }
+
+    /**
+     * 登出
+     */
+    @Override
+    public void logout() {
+        Long userId = BaseContext.getCurrentId();
+        redisTemplate.delete(REDIS_TOKEN_KEY + userId);
 
     }
 }

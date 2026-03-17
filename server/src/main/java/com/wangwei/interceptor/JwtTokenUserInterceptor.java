@@ -24,7 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @Order(1) // 指定拦截器的顺序，数字越小，优先级越高
 public class JwtTokenUserInterceptor implements HandlerInterceptor {
-    private static final String REDIS_PREFIX_KEY = "login:user:";
+    private static final String REDIS_PREFIX_KEY = "login:student:";
 
     private final JwtProperties jwtProperties;
     private final JwtUtils jwtUtils;
@@ -68,12 +68,13 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
                 response.setStatus(401);
                 return false;
             }
-            // 单点登录: 如果当前用户提交的令牌与redis中保存的不一致, 说明用户换了设备, 将当前用户踢下线
+            log.info("当前用户角色：{}", role);
+            // 单点登录: 如果当前用户提交的令牌与redis中保存的不一致, 说明用户换了设备或者令牌过期, 将当前用户踢下线, 强制用户重新登录
             String key = REDIS_PREFIX_KEY + userId;
             String redisToken = (String) redisTemplate.opsForValue().get(key);
             log.info("redisToken:{}", redisToken);
             if (!Objects.equals(token, redisToken)) {
-                log.info("用户已换设备, 请重新登录");
+                log.info("登录状态已失效, 请重新登录");
                 response.setStatus(401);
                 return false;
             }
