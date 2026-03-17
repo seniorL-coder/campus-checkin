@@ -41,4 +41,20 @@
         </where>
         order by tu.update_time desc, tu.id desc
     </select>
+    <select id="getStudentClassById" resultType="com.wangwei.vo.ClassVO">
+        select tc.id        as classId,
+               tc.class_name,
+               tc.major,
+               tc.create_time,
+               tc.update_time,
+               tu.id        as teacherId,
+               tu.role,
+               tu.real_name as teacherName
+        from t_class tc
+                 join t_class_teacher_relation tctr
+                      on tc.id = tctr.class_id
+                 join t_user tu
+                      on tctr.teacher_id = tu.id
+        where tc.id = #{classId}
+    </select>
 </mapper>

@@ -45,7 +45,7 @@ public class ActivityController {
     // 分页查询活动列表
     @Operation(summary = "分页查询活动列表")
     @PostMapping("/list")
-    public Result<?> getActivityList(@RequestBody ActivityQueryDTO activityQueryDTO) {
+    public Result<PageResult<ActivityVO>> list(@RequestBody ActivityQueryDTO activityQueryDTO) {
         log.info("分页查询活动列表:{}", activityQueryDTO);
         PageResult<ActivityVO> activityVOPageResult = activityService.list(activityQueryDTO);
         return Result.success(activityVOPageResult);

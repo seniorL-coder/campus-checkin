@@ -2,9 +2,11 @@ package com.wangwei.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Schema(description = "活动查询参数")
 public class ActivityQueryDTO  extends  PageQueryDTO{

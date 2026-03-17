@@ -39,12 +39,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
                         "/doc.html",
                         "/v3/api-docs/**",
                         "/swagger-resources/**",
-                        "/webjars/**",
-                        "/favicon.ico"
+                        "/webjars/**"
                 );
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/user/**")
-                .excludePathPatterns("/user/user/login");
+                .excludePathPatterns("/user/student/login");
     }
 
 

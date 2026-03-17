@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-@SuperBuilder
 public class User implements Serializable {
     @Schema(description = "用户ID")
     private Long id;

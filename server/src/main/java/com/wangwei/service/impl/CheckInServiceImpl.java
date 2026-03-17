@@ -10,6 +10,7 @@ import com.wangwei.mapper.CheckInMapper;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.CheckInService;
+import com.wangwei.websocket.AdminWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -31,12 +32,13 @@ public class CheckInServiceImpl implements CheckInService {
     private final CheckInMapper checkInMapper;
     private final RedisTemplate<String, String> redisTemplate;
     private final ActivityService activityService;
+    private final AdminWebSocketServer adminWebSocketServer;
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void checkIn(CheckInDTO checkInDTO) {
-        // 1.  根据 传入的 userId 和 activityId 查询签到信息
+        // 1.  根据 传入的 activityId 查询签到信息
         Long userId = BaseContext.getCurrentId();
         Long activityId = checkInDTO.getActivityId();
 
@@ -94,6 +96,11 @@ public class CheckInServiceImpl implements CheckInService {
                 .checkTime(LocalDateTime.now().toString())
                 .status(1).build();
         checkInMapper.updateCheckInStatus(checkIn); // 1: 已签到
+        try {
+            adminWebSocketServer.sendToOne(String.valueOf(activity.getCreateUserId()), "学生 " + userId + " 已签到");
+        } catch (Exception e) {
+            log.error("发送签到通知失败", e);
+        }
     }
 
     /**
