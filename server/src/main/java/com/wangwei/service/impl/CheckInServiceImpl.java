@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -114,4 +115,5 @@ public class CheckInServiceImpl implements CheckInService {
     public CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId) {
         return checkInMapper.getRecordByUserIdAndActivityId(userId, activityId);
     }
+
 }

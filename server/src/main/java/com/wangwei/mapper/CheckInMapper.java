@@ -22,7 +22,6 @@ public interface CheckInMapper {
      * @param userId       用户ID
      * @param activityId   活动ID
      */
-    @Select("SELECT id, user_id, activity_id, check_time, lon, lat, status FROM t_check_in WHERE user_id = #{userId} AND activity_id = #{activityId}")
     CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId);
 
 
@@ -33,4 +32,10 @@ public interface CheckInMapper {
      */
     @Update("UPDATE t_check_in SET status = #{status}, check_time = #{checkTime} WHERE user_id = #{userId} AND activity_id = #{activityId}")
     void updateCheckInStatus(CheckIn checkIn);
+
+    /**
+     * 更新签到状态（活动结束）
+     * @param activityId 活动ID
+     */
+    void updateCheckInStatusForFinishedActivity(Long activityId);
 }

@@ -3,6 +3,8 @@ package com.wangwei.service;
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.entity.CheckIn;
 
+import java.util.List;
+
 public interface CheckInService {
     /**
      * 签到
@@ -16,4 +18,6 @@ public interface CheckInService {
      * @param activityId 活动ID
      */
     CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId);
+
+
 }

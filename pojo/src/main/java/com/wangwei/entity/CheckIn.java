@@ -23,5 +23,5 @@ public class CheckIn {
     private Double lon;
     // 签到时的纬度
     private Double lat;
-    private Integer status; // 签到状态: 1-正常, 2-迟到, 3-范围外无效
+    private Integer status; // 签到状态:0-未开始, 1-正常, 2-迟到, 3-范围外无效
 }

@@ -42,4 +42,10 @@ public interface ActivityMapper {
      * @return
      */
     Page<ActivityVO> list(ActivityQueryDTO activityQueryDTO);
+
+    /**
+     * 批量更新活动记录状态
+     * @param updatedList
+     */
+    void updateActivityBatch(List<Activity> updatedList);
 }

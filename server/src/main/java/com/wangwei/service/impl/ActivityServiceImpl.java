@@ -1,5 +1,6 @@
 package com.wangwei.service.impl;
 
+import com.fasterxml.jackson.databind.util.BeanUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.wangwei.context.BaseContext;
@@ -9,6 +10,8 @@ import com.wangwei.dto.SignDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.entity.Notification;
+import com.wangwei.enumeration.ActivityStatus;
+import com.wangwei.enumeration.CheckInStatus;
 import com.wangwei.exception.ActivityCheckInNotBetweenTimeException;
 import com.wangwei.exception.CheckInRecordNotFoundException;
 import com.wangwei.exception.IllegalArgumentException;
@@ -19,6 +22,8 @@ import com.wangwei.mapper.ClassMapper;
 import com.wangwei.mapper.NotificationMapper;
 import com.wangwei.result.PageResult;
 import com.wangwei.service.ActivityService;
+import com.wangwei.service.CheckInActivityService;
+import com.wangwei.service.CheckInService;
 import com.wangwei.service.UserService;
 import com.wangwei.vo.ActivityVO;
 import com.wangwei.vo.ClassVO;
@@ -26,6 +31,7 @@ import com.wangwei.vo.UserVO;
 import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
@@ -55,6 +61,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     private static final String SIGN_TOKEN_PREFIX = "sign_token:";
     private final ClassMapper classMapper;
+    private final CheckInActivityService checkInActivityService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -63,6 +70,8 @@ public class ActivityServiceImpl implements ActivityService {
         // First: 判断活动结束时间是否小于当前时间, 如果是则抛出异常
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime endTime = LocalDateTime.parse(activityDTO.getEndTime(), formatter);
+        log.info("活动结束时间: {}", endTime);
+        log.info("当前时间: {}", LocalDateTime.now());
         if (endTime.isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("活动结束时间不能小于当前时间");
         }
@@ -76,6 +85,7 @@ public class ActivityServiceImpl implements ActivityService {
                 .radius(activityDTO.getRadius())
                 .targetClasses(activityDTO.getTargetClasses())
                 .createUserId(BaseContext.getCurrentId().intValue())
+                .status(ActivityStatus.NOT_STARTED.getCode()) // 默认状态为 0 -> 未开始，使用枚举获取状态码
                 .build();
         activityMapper.insert(activity);
         // 2. 查询班级id下的所有学生, 添加到 签到流水中 和 消息通知表中, 注意事务一致性
@@ -88,7 +98,7 @@ public class ActivityServiceImpl implements ActivityService {
         List<CheckIn> checkIns = studentIds.stream().map(id -> CheckIn.builder()
                 .userId(id)
                 .activityId(activity.getId())
-                .status(0)
+                .status(CheckInStatus.PENDING.getCode())
                 .build()).toList();
         // 2.2.2 批量插入签到数据
         checkInMapper.insertCheckIns(checkIns);
@@ -144,6 +154,7 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public PageResult<ActivityVO> list(ActivityQueryDTO activityQueryDTO) {
         activityQueryDTO.setCreateUserId(BaseContext.getCurrentId());
         // 1. 开启分页
@@ -151,6 +162,37 @@ public class ActivityServiceImpl implements ActivityService {
 
         // 2. 执行查询
         List<ActivityVO> list = activityMapper.list(activityQueryDTO);
+        // 懒更新活动状态, 判断返回的活动列表的结束时间与当前时间的状态
+        // 1, 结束时间小于当前时间, 则状态为 2 -> 已结束
+        //2. 结束时间大于当前时间, 则状态为 1 -> 进行中
+        List<Activity> updatedList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        list.forEach(item -> {
+            int oldStatus = item.getStatus();
+            Activity activity = new Activity();
+            if (item.getEndTime().isBefore(now)) {
+                item.setStatus(ActivityStatus.FINISHED.getCode());
+                BeanUtils.copyProperties(item, activity);
+            } else if (item.getEndTime().isAfter(now)) {
+                item.setStatus(ActivityStatus.ONGOING.getCode());
+                BeanUtils.copyProperties(item, activity);
+            }
+            if (oldStatus == item.getStatus()) {
+                return; // 状态没有变化，不添加到更新列表
+            }
+            updatedList.add(activity);
+        });
+        if (!updatedList.isEmpty()) {
+            // 批量更新活动状态，如果更新列表不为空，则进行更新操作
+            activityMapper.updateActivityBatch(updatedList);
+            // 这里还要更新t_check_in签到流水表中对应活动的状态, 如果活动状态为已完成, 对应签到流水表中的学生签到状态若果为0(未开始)
+            // 则需要将对应签到流水表中的学生签到状态更新为2(缺勤)
+            // 调用 StudentService 中的方法来更新签到状态
+            // 活动id的List
+            List<Long> activityIds = updatedList.stream().map(Activity::getId).toList();
+            log.info("更新签到状态, 活动ID: {}", activityIds);
+            checkInActivityService.updateCheckInStatusForFinishedActivity(activityIds);
+        }
 
         // 3. 使用 PageInfo 获取元数据（比直接强转 Page 更稳妥）
         PageInfo<ActivityVO> pageInfo = new PageInfo<>(list);

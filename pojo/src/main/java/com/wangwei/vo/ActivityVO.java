@@ -39,5 +39,7 @@ public class ActivityVO implements Serializable {
     private LocalDateTime createTime;
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+    @Schema(description = "活动状态 0-未开始 1-进行中 2-已结束")
+    private Integer status;
 
 }

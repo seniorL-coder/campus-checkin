@@ -11,7 +11,8 @@
                 #{createUserId})
     </insert>
     <select id="list" resultType="com.wangwei.vo.ActivityVO">
-        select id, title, start_time, end_time, longitude, latitude, radius, target_classes, create_user_id, create_time, update_time
+        select id, title, start_time, end_time, longitude, latitude, radius, target_classes, create_user_id,
+        create_time, update_time, status
         from t_activity
         <where>
             <if test="title != null and title != ''">
@@ -30,5 +31,55 @@
         </where>
         order by create_time desc
     </select>
+
+    <update id="updateActivityBatch" parameterType="java.util.List">
+        update t_activity
+        <set>
+            <trim prefix="title = case" suffix="end,">
+                when 1 = 0 then title
+                <foreach collection="list" item="item">
+                    <if test="item.title != null and item.title != ''">
+                        when id = #{item.id} then #{item.title}
+                    </if>
+                </foreach>
+                else title
+            </trim>
+
+            <trim prefix="start_time = case" suffix="end,">
+                when 1 = 0 then start_time
+                <foreach collection="list" item="item">
+                    <if test="item.startTime != null">
+                        when id = #{item.id} then #{item.startTime}
+                    </if>
+                </foreach>
+                else start_time
+            </trim>
+
+            <trim prefix="end_time = case" suffix="end,">
+                when 1 = 0 then end_time
+                <foreach collection="list" item="item">
+                    <if test="item.endTime != null">
+                        when id = #{item.id} then #{item.endTime}
+                    </if>
+                </foreach>
+                else end_time
+            </trim>
+
+            <trim prefix="status = case" suffix="end,">
+                when 1 = 0 then status
+                <foreach collection="list" item="item">
+                    <if test="item.status != null">
+                        when id = #{item.id} then #{item.status}
+                    </if>
+                </foreach>
+                else status
+            </trim>
+        </set>
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
 
 </mapper>

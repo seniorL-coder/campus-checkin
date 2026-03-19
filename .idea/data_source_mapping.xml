@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="DataSourcePerFileMappings">
-    <file url="file://$PROJECT_DIR$/server/src/main/java/com/wangwei/mapper/StudentMapper.java" value="c6f570bf-b848-4ad1-a816-b4dfb2578f2a" />
-    <file url="file://$PROJECT_DIR$/server/src/main/resources/mapper/ClassMapper.xml" value="c6f570bf-b848-4ad1-a816-b4dfb2578f2a" />
-  </component>
-</project>
