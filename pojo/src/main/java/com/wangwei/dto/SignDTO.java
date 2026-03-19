@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Schema(description = "创建签到跳转的 URL 的请求参数")
 public class SignDTO {
     @Schema(description = "活动 ID")
-    private Integer activityId;
+    private Long activityId;
 }

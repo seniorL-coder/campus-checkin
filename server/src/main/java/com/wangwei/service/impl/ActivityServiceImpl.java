@@ -9,6 +9,10 @@ import com.wangwei.dto.SignDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.entity.Notification;
+import com.wangwei.exception.ActivityCheckInNotBetweenTimeException;
+import com.wangwei.exception.CheckInRecordNotFoundException;
+import com.wangwei.exception.IllegalArgumentException;
+import com.wangwei.exception.ResourceEmptyException;
 import com.wangwei.mapper.ActivityMapper;
 import com.wangwei.mapper.CheckInMapper;
 import com.wangwei.mapper.ClassMapper;
@@ -23,11 +27,16 @@ import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.swing.text.DateFormatter;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -51,6 +60,12 @@ public class ActivityServiceImpl implements ActivityService {
     @Transactional(rollbackFor = Exception.class)
     public void createActivity(ActivityDTO activityDTO) {
         log.info("创建活动: {}", activityDTO);
+        // First: 判断活动结束时间是否小于当前时间, 如果是则抛出异常
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime endTime = LocalDateTime.parse(activityDTO.getEndTime(), formatter);
+        if (endTime.isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("活动结束时间不能小于当前时间");
+        }
         // 1. 创建活动 本体
         Activity activity = Activity.builder()
                 .title(activityDTO.getTitle())
@@ -106,7 +121,15 @@ public class ActivityServiceImpl implements ActivityService {
     @Override
     public String createActivitySign(SignDTO signDTO) {
         log.info("开始生成动态签到链接, 活动ID: {}", signDTO.getActivityId());
-
+        // 查询当前活动 在不在 签到时间内
+        Activity activity = activityMapper.getActivityById(signDTO.getActivityId());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if (activity == null) throw new CheckInRecordNotFoundException("活动不存在");
+        LocalDateTime startTime = LocalDateTime.parse(activity.getStartTime(), formatter);
+        LocalDateTime endTime = LocalDateTime.parse(activity.getEndTime(), formatter);
+        if (LocalDateTime.now().isBefore(startTime) || LocalDateTime.now().isAfter(endTime)) {
+            throw new ActivityCheckInNotBetweenTimeException("当前时间不在签到时间内");
+        }
         // 1. 生成随机 Token
         String token = UUID.randomUUID().toString(); // 使用 UUID.randomUUID()
 
@@ -116,9 +139,8 @@ public class ActivityServiceImpl implements ActivityService {
 
         // 3. 构建带参数的跳转 URL
         // 这里的 baseUrl 应该是你 H5 签到页面的地址
-        String baseUrl = "/campus-check-in";
-        return String.format("%s?activityId=%s&token=%s",
-                baseUrl, signDTO.getActivityId(), token);
+//        String baseUrl = "/campus-check-in";
+        return String.format("?activityId=%s&token=%s", signDTO.getActivityId(), token);
     }
 
     @Override
