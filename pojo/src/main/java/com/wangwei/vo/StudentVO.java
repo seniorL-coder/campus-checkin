@@ -1,15 +1,15 @@
 package com.wangwei.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 @Schema(description = "用户VO")
 public class StudentVO extends UserVO implements Serializable {

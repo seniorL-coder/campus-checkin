@@ -11,10 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -49,5 +46,14 @@ public class ActivityController {
         log.info("分页查询活动列表:{}", activityQueryDTO);
         PageResult<ActivityVO> activityVOPageResult = activityService.list(activityQueryDTO);
         return Result.success(activityVOPageResult);
+    }
+
+    // 修改活动状态为已结束(注意: 修改为已结束将无法再次修改)
+    @Operation(summary = "修改活动状态为已结束")
+    @PostMapping("/status/end/{id}")
+    public Result<String> updateActivityStatusToEnd(@PathVariable Long id) {
+        log.info("修改活动状态为已结束：{}", id);
+        activityService.updateActivityStatusToFinished(id);
+        return Result.success("修改成功");
     }
 }

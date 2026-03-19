@@ -162,6 +162,7 @@ public class ActivityServiceImpl implements ActivityService {
 
         // 2. 执行查询
         List<ActivityVO> list = activityMapper.list(activityQueryDTO);
+        log.info("活动列表-----------: {}", list);
         // 懒更新活动状态, 判断返回的活动列表的结束时间与当前时间的状态
         // 1, 结束时间小于当前时间, 则状态为 2 -> 已结束
         //2. 结束时间大于当前时间, 则状态为 1 -> 进行中
@@ -170,17 +171,21 @@ public class ActivityServiceImpl implements ActivityService {
         list.forEach(item -> {
             int oldStatus = item.getStatus();
             Activity activity = new Activity();
-            if (item.getEndTime().isBefore(now)) {
+            if (now.isBefore(item.getStartTime())) {
+                // 未开始
+                item.setStatus(ActivityStatus.NOT_STARTED.getCode());
+            } else if (now.isAfter(item.getEndTime())) {
+                // 已结束
                 item.setStatus(ActivityStatus.FINISHED.getCode());
-                BeanUtils.copyProperties(item, activity);
-            } else if (item.getEndTime().isAfter(now)) {
+            } else {
+                // 进行中
                 item.setStatus(ActivityStatus.ONGOING.getCode());
-                BeanUtils.copyProperties(item, activity);
             }
-            if (oldStatus == item.getStatus()) {
-                return; // 状态没有变化，不添加到更新列表
+            BeanUtils.copyProperties(item, activity);
+
+            if (oldStatus != item.getStatus()) {
+                updatedList.add(activity);
             }
-            updatedList.add(activity);
         });
         if (!updatedList.isEmpty()) {
             // 批量更新活动状态，如果更新列表不为空，则进行更新操作
@@ -233,5 +238,19 @@ public class ActivityServiceImpl implements ActivityService {
                 pageInfo.getTotal(),
                 pageInfo.getList()
         );
+    }
+
+    /**
+     * 更新活动状态为已完成
+     *
+     * @param id 活动ID
+     */
+    @Override
+    public void updateActivityStatusToFinished(Long id) {
+        // 这里要做多方面更新
+        // 1. 更新t_check_in 签到流水表中对应活动的未签到的签到记录为缺勤
+        checkInMapper.updateCheckInStatusForFinishedActivity(id);
+        // 2. 更新t_activity 活动表中对应活动的状态为已完成
+        activityMapper.updateActivityBatch(List.of(Activity.builder().id(id).status(ActivityStatus.FINISHED.getCode()).build()));
     }
 }

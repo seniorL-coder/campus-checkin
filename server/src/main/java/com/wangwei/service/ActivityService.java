@@ -37,4 +37,10 @@ public interface ActivityService {
      * @return
      */
     PageResult<ActivityVO> list(ActivityQueryDTO activityQueryDTO);
+
+    /**
+     * 修改活动状态为已结束(注意: 修改为已结束将无法再次修改)
+     * @param id
+     */
+    void updateActivityStatusToFinished(Long id);
 }
