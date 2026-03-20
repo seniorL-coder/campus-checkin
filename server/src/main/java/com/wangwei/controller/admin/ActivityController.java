@@ -3,6 +3,8 @@ package com.wangwei.controller.admin;
 import com.wangwei.dto.ActivityDTO;
 import com.wangwei.dto.ActivityQueryDTO;
 import com.wangwei.dto.SignDTO;
+import com.wangwei.dto.UpdateActivityDTO;
+import com.wangwei.exception.IllegalArgumentException;
 import com.wangwei.result.PageResult;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
@@ -31,6 +33,7 @@ public class ActivityController {
         activityService.createActivity(activityDTO);
         return Result.success("创建成功");
     }
+
     // 创建活动签到的 url 跳转连接接口
     @Operation(summary = "创建活动签到跳转的 url")
     @PostMapping("/sign")
@@ -39,6 +42,7 @@ public class ActivityController {
         String url = activityService.createActivitySign(signDTO);
         return Result.success(url);
     }
+
     // 分页查询活动列表
     @Operation(summary = "分页查询活动列表")
     @PostMapping("/list")
@@ -50,10 +54,22 @@ public class ActivityController {
 
     // 修改活动状态为已结束(注意: 修改为已结束将无法再次修改)
     @Operation(summary = "修改活动状态为已结束")
-    @PostMapping("/status/end/{id}")
+    @GetMapping("/status/end/{id}")
     public Result<String> updateActivityStatusToEnd(@PathVariable Long id) {
         log.info("修改活动状态为已结束：{}", id);
         activityService.updateActivityStatusToFinished(id);
         return Result.success("修改成功");
+    }
+
+    // 更新活动
+    @Operation(summary = "更新活动")
+    @PutMapping
+    public Result<String> updateActivity(@RequestBody UpdateActivityDTO updateActivityDTO) {
+        if (updateActivityDTO == null || updateActivityDTO.getId() == null) {
+            throw new IllegalArgumentException("参数错误");
+        }
+        log.info("更新活动：{}", updateActivityDTO);
+        activityService.updateActivity(updateActivityDTO);
+        return Result.success("更新成功");
     }
 }

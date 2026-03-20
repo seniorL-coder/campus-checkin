@@ -66,17 +66,15 @@ public class CheckInServiceImpl implements CheckInService {
             throw new CheckInRecordNotFoundException("活动不存在");
         }
         // 2.1 拿到活动详情 开始时间, 结束时间, 经纬度
-        String startTime = activity.getStartTime();
-        String endTime = activity.getEndTime();
+        LocalDateTime startTime = activity.getStartTime();
+        LocalDateTime endTime = activity.getEndTime();
         Double longitude = activity.getLongitude();
         Double latitude = activity.getLatitude();
         // 2.2 拿到活动详情 半径
         Double radius = activity.getRadius();
         // 3. 判断签到时间是否在活动开始时间和结束时间之间
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        if (!now.isAfter(LocalDateTime.parse(startTime, formatter)) || !now.isBefore(LocalDateTime.parse(endTime, formatter))) {
+        if (now.isBefore(startTime) || now.isAfter(endTime)) {
             throw new CheckInTimeOutOfRangeException("签到时间不在活动时间内");
         }
         // 4. 判断签到地点是否在活动地点附近

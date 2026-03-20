@@ -17,10 +17,10 @@ public class Activity {
     private String title;
     // 开始时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private String startTime;
+    private LocalDateTime startTime;
     // 结束时间
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private String endTime;
+    private LocalDateTime endTime;
     // 中心点经度
     private Double longitude;
     // 中心点纬度

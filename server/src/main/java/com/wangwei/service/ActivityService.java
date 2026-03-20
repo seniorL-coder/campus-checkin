@@ -3,6 +3,7 @@ package com.wangwei.service;
 import com.wangwei.dto.ActivityDTO;
 import com.wangwei.dto.ActivityQueryDTO;
 import com.wangwei.dto.SignDTO;
+import com.wangwei.dto.UpdateActivityDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.result.PageResult;
 import com.wangwei.vo.ActivityVO;
@@ -43,4 +44,10 @@ public interface ActivityService {
      * @param id
      */
     void updateActivityStatusToFinished(Long id);
+
+    /**
+     * 更新活动
+     * @param updateActivityDTO 更新活动DTO对象
+     */
+    void updateActivity(UpdateActivityDTO updateActivityDTO);
 }

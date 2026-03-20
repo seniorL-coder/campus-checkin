@@ -19,8 +19,8 @@ public interface CheckInMapper {
     /**
      * 根据用户ID和活动ID获取签到记录
      *
-     * @param userId       用户ID
-     * @param activityId   活动ID
+     * @param userId     用户ID
+     * @param activityId 活动ID
      */
     CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId);
 
@@ -35,6 +35,7 @@ public interface CheckInMapper {
 
     /**
      * 更新签到状态（活动结束）
+     *
      * @param activityId 活动ID
      */
     void updateCheckInStatusForFinishedActivity(Long activityId);

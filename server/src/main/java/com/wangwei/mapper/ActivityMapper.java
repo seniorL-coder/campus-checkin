@@ -48,4 +48,10 @@ public interface ActivityMapper {
      * @param updatedList
      */
     void updateActivityBatch(List<Activity> updatedList);
+
+    /**
+     * 根据id更新活动记录
+     * @param activity 活动记录
+     */
+    void updateActivityById(Activity activity);
 }

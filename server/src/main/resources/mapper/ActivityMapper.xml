@@ -80,6 +80,21 @@
             #{item.id}
         </foreach>
     </update>
+    <update id="updateActivityById" parameterType="com.wangwei.entity.Activity">
+        update t_activity
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="startTime != null">
+                start_time = #{startTime},
+            </if>
+            <if test="endTime != null">
+                end_time = #{endTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
 
 
 </mapper>

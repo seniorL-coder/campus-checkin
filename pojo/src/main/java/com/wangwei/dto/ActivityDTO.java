@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,9 +15,9 @@ public class ActivityDTO {
     @Schema(description = "活动标题", requiredMode = Schema.RequiredMode.REQUIRED)
     private String title;
     @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String startTime;
+    private LocalDateTime startTime;
     @Schema(description = "结束时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String endTime;
+    private LocalDateTime endTime;
     @Schema(description = "中心点经度", requiredMode = Schema.RequiredMode.REQUIRED)
     private Double longitude;
     @Schema(description = "中心点纬度", requiredMode = Schema.RequiredMode.REQUIRED)
