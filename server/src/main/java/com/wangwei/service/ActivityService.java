@@ -56,4 +56,15 @@ public interface ActivityService {
      * @param id
      */
     void initCheckInList(Long id);
+
+    /**
+     * 关闭过期活动
+     * @return
+     */
+    void closeExpiredActivities();
+
+    /**
+     * 开启已经开始的活动
+     */
+    void startStartedActivities();
 }

@@ -3,6 +3,7 @@ package com.wangwei.controller.user;
 import com.wangwei.result.Result;
 import com.wangwei.service.NotificationService;
 import com.wangwei.vo.NotificationVO;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class NotificationController {
      * 获取未读消息数量（红点）
      */
     @GetMapping("/unread/count")
+    @Operation(summary = "获取未读消息数量（红点）")
     public Result<Integer> getUnreadCount() {
         return Result.success(notificationService.getUnreadCount());
     }
@@ -33,6 +35,7 @@ public class NotificationController {
      * 获取消息列表
      */
     @GetMapping("/list")
+    @Operation(summary = "获取消息列表")
     public Result<List<NotificationVO>> getList() {
         return Result.success(notificationService.getList());
     }
@@ -41,6 +44,7 @@ public class NotificationController {
      * 标记全部已读
      */
     @PutMapping("/read/all")
+    @Operation(summary = "标记全部已读")
     public Result<?> readAll() {
         notificationService.readAll();
         return Result.success();
@@ -50,6 +54,7 @@ public class NotificationController {
      * 标记单条已读
      */
     @PutMapping("/read/{id}")
+    @Operation(summary = "标记单条已读")
     public Result<?> readOne(@PathVariable Long id) {
         notificationService.readOne(id);
         return Result.success();

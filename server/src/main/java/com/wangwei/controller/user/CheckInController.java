@@ -3,6 +3,7 @@ package com.wangwei.controller.user;
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.result.Result;
 import com.wangwei.service.CheckInService;
+import com.wangwei.vo.AttendanceVO;
 import com.wangwei.vo.CheckInVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,6 +50,12 @@ public class CheckInController {
     @GetMapping("/records")
     public Result<List<CheckInVO>> getCheckInRecords(Integer status) {
         return Result.success(checkInService.getCheckInRecords(status));
+    }
+
+    @GetMapping("/attendance")
+    @Operation(summary = "获取出勤率统计")
+    public Result<AttendanceVO> getAttendance() {
+        return Result.success(checkInService.getAttendance());
     }
 
 }

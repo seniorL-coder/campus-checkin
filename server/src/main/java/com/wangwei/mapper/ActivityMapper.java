@@ -14,6 +14,7 @@ import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -38,6 +39,7 @@ public interface ActivityMapper {
 
     /**
      * 根据条件获取活动记录列表
+     *
      * @param activityQueryDTO
      * @return
      */
@@ -45,13 +47,28 @@ public interface ActivityMapper {
 
     /**
      * 批量更新活动记录状态
+     *
      * @param updatedList
      */
     void updateActivityBatch(List<Activity> updatedList);
 
     /**
      * 根据id更新活动记录
+     *
      * @param activity 活动记录
      */
     void updateActivityById(Activity activity);
+
+    /**
+      * 根据时间更新活动记录状态为已结束
+     *
+     * @param now 当前时间
+     */
+    int closeExpiredActivities(LocalDateTime now);
+
+    /**
+     * 根据时间更新活动记录状态为进行中
+     * @param now 当前时间
+     */
+    void startStartedActivities(LocalDateTime now);
 }

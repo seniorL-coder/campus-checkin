@@ -26,6 +26,9 @@ public class CheckInVO {
 
     @Schema(description = "签到状态, 0-未签到, 1-已签到, 2-缺勤, 3-范围外")
     private Integer status;
+    // 活动状态
+    @Schema(description = "活动状态, 0-未开始, 1-进行中, 2-已结束")
+    private Integer activityStatus;
     @Schema(description = "签到位置经度")
     private Double longitude;
     @Schema(description = "签到位置纬度")

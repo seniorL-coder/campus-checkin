@@ -28,6 +28,13 @@
         WHERE status = 0
           AND activity_id = #{activityId}
     </update>
+    <update id="updateAbsentStatusByFinishedActivities">
+        UPDATE t_check_in
+        SET status = 2
+        WHERE activity_id IN (SELECT id FROM t_activity WHERE status = 2)
+          AND check_time IS NULL
+          AND status = 0
+    </update>
 
     <select id="selectTodaySchedule" resultType="com.wangwei.vo.CheckInVO">
         SELECT c.id,
@@ -37,6 +44,7 @@
                a.end_time,
                c.check_time,
                c.status,
+               a.status AS activityStatus,
                a.longitude,
                a.latitude
         FROM t_check_in c
@@ -55,6 +63,7 @@
         a.end_time,
         c.check_time,
         c.status,
+        a.status AS activityStatus,
         a.longitude,
         a.latitude
         FROM t_check_in c
@@ -67,6 +76,19 @@
 
         ORDER BY a.start_time DESC
     </select>
+    <select id="selectAttendance" resultType="com.wangwei.vo.AttendanceVO">
+        SELECT COUNT(*)                                                AS totalCount,
 
+               SUM(CASE WHEN check_time IS NOT NULL THEN 1 ELSE 0 END) AS checkInCount,
+
+               SUM(CASE
+                       WHEN c.check_time IS NULL AND c.status = 2 THEN 1
+                       ELSE 0
+                   END)                                                AS absentCount
+
+        FROM t_check_in c
+                 JOIN t_activity a ON c.activity_id = a.id
+        WHERE c.user_id = #{userId}
+    </select>
 
 </mapper>

@@ -95,6 +95,19 @@
         </set>
         where id = #{id}
     </update>
+    <update id="closeExpiredActivities">
+        UPDATE t_activity
+        SET status = 2
+        WHERE end_time &lt; #{now}
+          AND status != 2
+    </update>
+    <update id="startStartedActivities">
+        UPDATE t_activity
+        SET status = 1
+        WHERE start_time &lt;= #{now}
+          and end_time &gt;= #{now}
+          AND status = 0
+    </update>
 
 
 </mapper>

@@ -295,4 +295,27 @@ public class ActivityServiceImpl implements ActivityService {
         });
 
     }
+
+    @Override
+    public void closeExpiredActivities() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 1. 更新活动状态为已完成
+        int closedActivities = activityMapper.closeExpiredActivities(now);
+        // 2. 如果有活动被更新，则级联更新签到表：
+        if (closedActivities > 0) {
+            // 2.1 只要活动已结束，且签到时间为空、状态还是“待签到”的记录，全部改为“缺勤”
+            checkInMapper.updateAbsentStatusByFinishedActivities();
+        }
+
+    }
+
+    @Override
+    public void startStartedActivities() {
+        LocalDateTime now = LocalDateTime.now();
+        // 更新活动状态为进行中
+        activityMapper.startStartedActivities(now);
+
+    }
 }

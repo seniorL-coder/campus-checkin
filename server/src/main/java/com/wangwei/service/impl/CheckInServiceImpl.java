@@ -5,11 +5,14 @@ import com.wangwei.context.BaseContext;
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
+import com.wangwei.enumeration.ActivityStatus;
+import com.wangwei.enumeration.CheckInStatus;
 import com.wangwei.exception.*;
 import com.wangwei.mapper.CheckInMapper;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.CheckInService;
+import com.wangwei.vo.AttendanceVO;
 import com.wangwei.vo.CheckInVO;
 import com.wangwei.websocket.AdminWebSocketServer;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +51,7 @@ public class CheckInServiceImpl implements CheckInService {
         String redisKey = SIGN_TOKEN_PREFIX + activityId;
         String validToken = redisTemplate.opsForValue().get(redisKey);
         if (validToken == null) {
-            throw new QrCodeExpiredException("二维码已失效，请刷新后重试");
+            throw new QrCodeExpiredException("二维码已失效，请重新扫码");
         }
         if (!validToken.equals(checkInDTO.getToken())) {
             throw new InvalidCheckInTokenException("签到凭证无效，请重新扫码");
@@ -126,9 +129,11 @@ public class CheckInServiceImpl implements CheckInService {
         LocalDateTime now = LocalDateTime.now();
         checkInVOList.forEach(item -> {
             if (now.isBefore(item.getStartTime())) {
-                item.setStatus(0);
-            } else if (now.isAfter(item.getEndTime()) && item.getCheckTime() == null) {
-                item.setStatus(2);
+                item.setStatus(CheckInStatus.PENDING.getCode());
+            } else if ((now.isAfter(item.getEndTime()) && item.getCheckTime() == null)) {
+                item.setStatus(CheckInStatus.ABSENT.getCode());
+            } else if (now.isBefore(item.getEndTime()) && item.getCheckTime() == null && item.getActivityStatus() == ActivityStatus.FINISHED.getCode()) {
+                item.setStatus(CheckInStatus.ABSENT.getCode());
             }
         });
         return checkInVOList;
@@ -152,25 +157,45 @@ public class CheckInServiceImpl implements CheckInService {
 
             // 已签到优先
             if (item.getCheckTime() != null) {
-                item.setStatus(1);
+                item.setStatus(CheckInStatus.SUCCESS.getCode());
                 continue;
             }
 
             // 未开始
-            if (now.isBefore(item.getStartTime())) {
-                item.setStatus(0);
+            if (now.isBefore(item.getStartTime()) && item.getActivityStatus() == ActivityStatus.NOT_STARTED.getCode()) {
+                item.setStatus(CheckInStatus.PENDING.getCode());
             }
             // 已结束但未签到 -> 缺勤
-            else if (now.isAfter(item.getEndTime())) {
-                item.setStatus(2);
+            else if (now.isAfter(item.getEndTime()) || item.getActivityStatus() == ActivityStatus.FINISHED.getCode()) {
+                item.setStatus(CheckInStatus.ABSENT.getCode());
             }
             // 进行中（你可以自定义，比如仍算未开始 or 新状态）
             else {
-                item.setStatus(0);
+                item.setStatus(CheckInStatus.PENDING.getCode());
             }
         }
 
         return list;
+    }
+
+    @Override
+    public AttendanceVO getAttendance() {
+        Long userId = BaseContext.getCurrentId();
+
+        AttendanceVO vo = checkInMapper.selectAttendance(userId);
+
+        int total = vo.getTotalCount() == null ? 0 : vo.getTotalCount();
+        int checkIn = vo.getCheckInCount() == null ? 0 : vo.getCheckInCount();
+
+        double rate = 0.0;
+
+        if (total != 0) {
+            rate = (checkIn * 100.0) / total;
+        }
+
+        vo.setAttendanceRate(Math.round(rate * 100.0) / 100.0); // 保留2位小数
+
+        return vo;
     }
 
 }

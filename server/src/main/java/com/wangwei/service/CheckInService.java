@@ -2,6 +2,7 @@ package com.wangwei.service;
 
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.entity.CheckIn;
+import com.wangwei.vo.AttendanceVO;
 import com.wangwei.vo.CheckInVO;
 
 import java.util.List;
@@ -30,4 +31,10 @@ public interface CheckInService {
      * 获取签到记录（可按状态筛选）
      */
     List<CheckInVO> getCheckInRecords(Integer status);
+
+    /**
+     * 获取出勤率统计
+     * @return
+     */
+    AttendanceVO getAttendance();
 }
