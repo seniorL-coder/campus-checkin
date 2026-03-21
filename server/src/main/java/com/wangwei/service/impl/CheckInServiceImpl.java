@@ -10,6 +10,7 @@ import com.wangwei.mapper.CheckInMapper;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.CheckInService;
+import com.wangwei.vo.CheckInVO;
 import com.wangwei.websocket.AdminWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -86,7 +87,7 @@ public class CheckInServiceImpl implements CheckInService {
                     .checkTime(LocalDateTime.now().toString())
                     .status(3).build();
             checkInMapper.updateCheckInStatus(checkIn); // 3: 签到距离超过目标范围
-            throw new DistanceOverTargetRadiusException("签到距离超过目标范围");
+            throw new DistanceOverTargetRadiusException("签到距离超过目标范围, 距离边界" + radius + "米");
         }
         // 5. 如果满足条件, 更新 t_check_in 表中的签到状态为已签到
         CheckIn checkIn = CheckIn.builder()
@@ -112,6 +113,64 @@ public class CheckInServiceImpl implements CheckInService {
     @Override
     public CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId) {
         return checkInMapper.getRecordByUserIdAndActivityId(userId, activityId);
+    }
+
+
+    /**
+     * 今日签到日程
+     */
+    @Override
+    public List<CheckInVO> getTodaySchedule() {
+        Long userId = BaseContext.getCurrentId();
+        List<CheckInVO> checkInVOList = checkInMapper.selectTodaySchedule(userId);
+        LocalDateTime now = LocalDateTime.now();
+        checkInVOList.forEach(item -> {
+            if (now.isBefore(item.getStartTime())) {
+                item.setStatus(0);
+            } else if (now.isAfter(item.getEndTime()) && item.getCheckTime() == null) {
+                item.setStatus(2);
+            }
+        });
+        return checkInVOList;
+    }
+
+    /**
+     * 获取全部签到记录
+     *
+     * @param status
+     * @return
+     */
+    @Override
+    public List<CheckInVO> getCheckInRecords(Integer status) {
+        Long userId = BaseContext.getCurrentId();
+
+        List<CheckInVO> list = checkInMapper.selectCheckInRecords(userId, status);
+
+        LocalDateTime now = LocalDateTime.now();
+
+        for (CheckInVO item : list) {
+
+            // 已签到优先
+            if (item.getCheckTime() != null) {
+                item.setStatus(1);
+                continue;
+            }
+
+            // 未开始
+            if (now.isBefore(item.getStartTime())) {
+                item.setStatus(0);
+            }
+            // 已结束但未签到 -> 缺勤
+            else if (now.isAfter(item.getEndTime())) {
+                item.setStatus(2);
+            }
+            // 进行中（你可以自定义，比如仍算未开始 or 新状态）
+            else {
+                item.setStatus(0);
+            }
+        }
+
+        return list;
     }
 
 }

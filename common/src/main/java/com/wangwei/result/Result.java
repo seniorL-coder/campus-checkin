@@ -15,18 +15,18 @@ public class Result<T> implements Serializable {
     private String msg; //错误信息
     private T data; //数据
 
-    public static <T> Result<T> success(String msg) {
-        Result<T> result = new Result<T>();
-        result.code = 1;
-        result.msg = msg;
+    public static <T> Result<T> success(T data) {
+        Result<T> result = new Result<>();
+        result.setCode(1);
+        result.setData(data);
+        result.setMsg("success");
         return result;
     }
 
-    public static <T> Result<T> success(T object) {
-        Result<T> result = new Result<>();
-        result.data = object;
-        result.code = 1;
-        result.msg = "success";
+    public static Result<Void> success() {
+        Result<Void> result = new Result<>();
+        result.setCode(1);
+        result.setMsg("success");
         return result;
     }
 

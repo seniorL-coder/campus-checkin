@@ -2,6 +2,7 @@ package com.wangwei.service;
 
 import com.wangwei.dto.CheckInDTO;
 import com.wangwei.entity.CheckIn;
+import com.wangwei.vo.CheckInVO;
 
 import java.util.List;
 
@@ -20,4 +21,13 @@ public interface CheckInService {
     CheckIn getRecordByUserIdAndActivityId(Long userId, Long activityId);
 
 
+    /**
+     * 获取今日签到日程
+     */
+    List<CheckInVO> getTodaySchedule();
+
+    /**
+     * 获取签到记录（可按状态筛选）
+     */
+    List<CheckInVO> getCheckInRecords(Integer status);
 }

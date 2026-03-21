@@ -50,4 +50,10 @@ public interface ActivityService {
      * @param updateActivityDTO 更新活动DTO对象
      */
     void updateActivity(UpdateActivityDTO updateActivityDTO);
+
+    /**
+     * 初始化签到列表
+     * @param id
+     */
+    void initCheckInList(Long id);
 }

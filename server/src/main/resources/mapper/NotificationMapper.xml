@@ -12,4 +12,39 @@
             #{notification.createTime})
         </foreach>
     </insert>
+    <!-- 查询未读数量 -->
+    <select id="countUnread" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM t_notification
+        WHERE user_id = #{userId}
+          AND is_read = 0
+    </select>
+    <!-- 查询消息列表 -->
+    <select id="selectList" resultType="com.wangwei.vo.NotificationVO">
+        SELECT id,
+               activity_id AS activityId,
+               content,
+               is_read     AS isRead,
+               create_time AS createTime,
+               read_time   AS readTime
+        FROM t_notification
+        WHERE user_id = #{userId}
+        ORDER BY create_time DESC
+    </select>
+
+    <!-- 更新全部已读 -->
+    <update id="updateAllRead">
+        UPDATE t_notification
+        SET is_read   = 1,
+            read_time = #{readTime}
+        WHERE user_id = #{userId}
+          AND is_read = 0
+    </update>
+    <!-- 更新单条已读 -->
+    <update id="updateOneRead">
+        UPDATE t_notification
+        SET is_read   = 1,
+            read_time = #{readTime}
+        WHERE id = #{id}
+    </update>
 </mapper>

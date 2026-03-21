@@ -29,4 +29,44 @@
           AND activity_id = #{activityId}
     </update>
 
+    <select id="selectTodaySchedule" resultType="com.wangwei.vo.CheckInVO">
+        SELECT c.id,
+               c.activity_id,
+               a.title AS activityTitle,
+               a.start_time,
+               a.end_time,
+               c.check_time,
+               c.status,
+               a.longitude,
+               a.latitude
+        FROM t_check_in c
+                 LEFT JOIN t_activity a ON c.activity_id = a.id
+        WHERE c.user_id = #{userId}
+          AND a.end_time &gt;= CURDATE()
+          AND a.start_time &lt; DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+    </select>
+
+    <select id="selectCheckInRecords" resultType="com.wangwei.vo.CheckInVO">
+        SELECT
+        c.id,
+        c.activity_id,
+        a.title AS activityTitle,
+        a.start_time,
+        a.end_time,
+        c.check_time,
+        c.status,
+        a.longitude,
+        a.latitude
+        FROM t_check_in c
+        LEFT JOIN t_activity a ON c.activity_id = a.id
+        WHERE c.user_id = #{userId}
+
+        <if test="status != null">
+            AND c.status = #{status}
+        </if>
+
+        ORDER BY a.start_time DESC
+    </select>
+
+
 </mapper>

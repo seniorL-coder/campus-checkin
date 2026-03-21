@@ -55,21 +55,30 @@ public class ActivityController {
     // 修改活动状态为已结束(注意: 修改为已结束将无法再次修改)
     @Operation(summary = "修改活动状态为已结束")
     @GetMapping("/status/end/{id}")
-    public Result<String> updateActivityStatusToEnd(@PathVariable Long id) {
+    public Result<?> updateActivityStatusToEnd(@PathVariable Long id) {
         log.info("修改活动状态为已结束：{}", id);
         activityService.updateActivityStatusToFinished(id);
-        return Result.success("修改成功");
+        return Result.success();
     }
 
     // 更新活动
     @Operation(summary = "更新活动")
     @PutMapping
-    public Result<String> updateActivity(@RequestBody UpdateActivityDTO updateActivityDTO) {
+    public Result<?> updateActivity(@RequestBody UpdateActivityDTO updateActivityDTO) {
         if (updateActivityDTO == null || updateActivityDTO.getId() == null) {
             throw new IllegalArgumentException("参数错误");
         }
         log.info("更新活动：{}", updateActivityDTO);
         activityService.updateActivity(updateActivityDTO);
-        return Result.success("更新成功");
+        return Result.success();
+    }
+
+    // 初始化签到列表
+    @Operation(summary = "初始化签到列表")
+    @PostMapping("/initCheckIn/{id}")
+    public Result<?> initCheckInList(@PathVariable Long id) {
+        log.info("初始化签到列表：{}", id);
+        activityService.initCheckInList(id);
+        return Result.success();
     }
 }

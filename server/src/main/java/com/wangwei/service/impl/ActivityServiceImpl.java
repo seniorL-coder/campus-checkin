@@ -102,11 +102,11 @@ public class ActivityServiceImpl implements ActivityService {
         log.info("开始生成动态签到链接, 活动ID: {}", signDTO.getActivityId());
         // 查询当前活动 在不在 签到时间内
         Activity activity = activityMapper.getActivityById(signDTO.getActivityId());
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         if (activity == null) throw new CheckInRecordNotFoundException("活动不存在");
         LocalDateTime startTime = activity.getStartTime();
         LocalDateTime endTime = activity.getEndTime();
-        if (LocalDateTime.now().isBefore(startTime) || LocalDateTime.now().isAfter(endTime)) {
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(startTime) || now.isAfter(endTime)) {
             throw new ActivityCheckInNotBetweenTimeException("当前时间不在签到时间内");
         }
         // 1. 生成随机 Token
@@ -116,41 +116,8 @@ public class ActivityServiceImpl implements ActivityService {
         String redisKey = SIGN_TOKEN_PREFIX + signDTO.getActivityId();
         redisTemplate.opsForValue().set(redisKey, token, 120, TimeUnit.SECONDS);
 
-        // 3. 查询班级id下的所有学生, 添加到 签到流水中 和 消息通知表中, 注意事务一致性
-        //3.1 查询学生列表
-        List<Integer> targetClassesIds = Stream.of(activity.getTargetClasses().split(",")).map(Integer::parseInt).toList();
-        List<UserVO> students = userService.getStudentsByClassIds(targetClassesIds);
-        List<Long> studentIds = students.stream().map(UserVO::getId).toList();
-        //3.2 添加到签到流水中
-        // 3.2.1 构建签到数据 List,
-        List<CheckIn> checkIns = studentIds.stream().map(id -> CheckIn.builder()
-                .userId(id)
-                .activityId(activity.getId())
-                .status(CheckInStatus.PENDING.getCode())
-                .build()).toList();
-        // 3.2.2 批量插入签到数据
-        checkInMapper.insertCheckIns(checkIns);
-        // 3.3 添加到消息通知表中
-        // 3.3.1 构建消息通知数据 List,
-        List<Notification> notifications = studentIds.stream().map(id -> Notification.builder()
-                .userId(id)
-                .activityId(activity.getId())
-                .content("您有一个新的班级活动：" + activity.getTitle() + "，请按时参加！")
-                .isRead(0)
-                .createTime(activity.getCreateTime())
-                .build()).toList();
-        notificationMapper.insertNotifications(notifications);
-        // 推送通知
-        studentIds.forEach(id -> {
-            try {
-                userWebSocketServer.sendToOne(id.toString(), "您有一个新的班级活动通知，请及时查看！");
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        // 4. 构建带参数的跳转 URL
-        // 这里的 baseUrl 应该是你 H5 签到页面的地址
+        // 3. 构建带参数的跳转 URL
+        // 这里的 baseUrl 是 H5 签到页面的地址
         // String baseUrl = "/campus-check-in";
         return String.format("?activityId=%s&token=%s", signDTO.getActivityId(), token);
     }
@@ -280,5 +247,52 @@ public class ActivityServiceImpl implements ActivityService {
         Activity activity = new Activity();
         BeanUtils.copyProperties(updateActivityDTO, activity);
         activityMapper.updateActivityById(activity);
+    }
+
+    /**
+     * 初始化签到列表
+     *
+     * @param activityId 活动ID
+     */
+    @Override
+    public void initCheckInList(Long activityId) {
+        // 查询活动详情
+        Activity activity = activityMapper.getActivityById(activityId);
+        if (activity == null) {
+            throw new IllegalArgumentException("活动不存在");
+        }
+        // 3. 查询班级id下的所有学生, 添加到 签到流水中 和 消息通知表中, 注意事务一致性
+        //3.1 查询学生列表
+        List<Integer> targetClassesIds = Stream.of(activity.getTargetClasses().split(",")).map(Integer::parseInt).toList();
+        List<UserVO> students = userService.getStudentsByClassIds(targetClassesIds);
+        List<Long> studentIds = students.stream().map(UserVO::getId).toList();
+        //3.2 添加到签到流水中
+        // 3.2.1 构建签到数据 List,
+        List<CheckIn> checkIns = studentIds.stream().map(id -> CheckIn.builder()
+                .userId(id)
+                .activityId(activity.getId())
+                .status(CheckInStatus.PENDING.getCode())
+                .build()).toList();
+        // 3.2.2 批量插入签到数据
+        checkInMapper.insertCheckIns(checkIns);
+        // 3.3 添加到消息通知表中
+        // 3.3.1 构建消息通知数据 List,
+        List<Notification> notifications = studentIds.stream().map(id -> Notification.builder()
+                .userId(id)
+                .activityId(activity.getId())
+                .content("您有一个新的班级活动：" + activity.getTitle() + "，请按时参加！")
+                .isRead(0)
+                .createTime(activity.getCreateTime())
+                .build()).toList();
+        notificationMapper.insertNotifications(notifications);
+        // 推送通知
+        studentIds.forEach(id -> {
+            try {
+                userWebSocketServer.sendToOne(id.toString(), "您有一个新的班级活动通知，请及时查看！");
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 }

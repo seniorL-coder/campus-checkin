@@ -1,6 +1,7 @@
 package com.wangwei.mapper;
 
 import com.wangwei.entity.CheckIn;
+import com.wangwei.vo.CheckInVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -39,4 +40,16 @@ public interface CheckInMapper {
      * @param activityId 活动ID
      */
     void updateCheckInStatusForFinishedActivity(Long activityId);
+
+
+    /**
+     * 今日签到日程
+     */
+    List<CheckInVO> selectTodaySchedule(Long userId);
+
+    /**
+     * 查询签到记录
+     */
+    List<CheckInVO> selectCheckInRecords(Long userId,
+                                         Integer status);
 }
