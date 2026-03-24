@@ -1,7 +1,6 @@
 package com.wangwei.service;
 
 import com.wangwei.dto.LoginDTO;
-import com.wangwei.entity.User;
 import com.wangwei.vo.LoginVO;
 import com.wangwei.vo.UserVO;
 
@@ -25,4 +24,7 @@ public interface UserService {
      */
     List<UserVO> getStudentsByClassIds(List<Integer> classIds);
 
+    Long getTotalStudentCount();
+
+    Long getTodayNewStudentCount();
 }

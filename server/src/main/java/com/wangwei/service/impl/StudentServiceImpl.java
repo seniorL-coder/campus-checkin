@@ -14,10 +14,14 @@ import com.wangwei.mapper.StudentMapper;
 import com.wangwei.properties.JwtProperties;
 import com.wangwei.result.PageResult;
 import com.wangwei.service.StudentService;
+import com.wangwei.service.UserService;
 import com.wangwei.utils.JwtUtils;
 import com.wangwei.utils.SHA256Util;
 import com.wangwei.vo.ClassVO;
+import com.wangwei.vo.StudentStatsVO;
 import com.wangwei.vo.StudentVO;
+import com.wangwei.websocket.AdminWebSocketServer;
+import com.wangwei.websocket.UserWebSocketServer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +46,9 @@ public class StudentServiceImpl implements StudentService {
     private final JwtProperties jwtProperties;
 
     private static final String REDIS_TOKEN_KEY = "login:student:";
+    private final UserWebSocketServer userWebSocketServer;
+    private final UserService userService;
+    private final AdminWebSocketServer adminWebSocketServer;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -87,6 +94,19 @@ public class StudentServiceImpl implements StudentService {
         student.setClassId(studentDTO.getClassId());
         student.setRole(UserInfoConstant.DEFAULT_STUDENT_ROLE);
         studentMapper.add(student);
+        // type:' STUDENT_REGISTERED'
+        // data : totalCount todayCount
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", "STUDENT_REGISTERED");
+        // 构建 StudentStatsVO
+        StudentStatsVO studentStatsVO = StudentStatsVO.builder()
+                .todayCount(userService.getTodayNewStudentCount())
+                .totalCount(userService.getTotalStudentCount())
+                .build();
+        map.put("data", studentStatsVO);
+        Long currentId = BaseContext.getCurrentId();
+        adminWebSocketServer.sendJson(String.valueOf(currentId), map);
+        log.info("已向用户 {} 推送学生注册统计信息: {}", currentId, studentStatsVO);
     }
 
     /**

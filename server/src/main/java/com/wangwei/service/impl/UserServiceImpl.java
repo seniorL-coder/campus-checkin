@@ -2,7 +2,6 @@ package com.wangwei.service.impl;
 
 import com.wangwei.context.BaseContext;
 import com.wangwei.dto.LoginDTO;
-import com.wangwei.entity.User;
 import com.wangwei.exception.LoginFailedException;
 import com.wangwei.exception.PasswordErrorException;
 import com.wangwei.mapper.UserMapper;
@@ -84,4 +83,23 @@ public class UserServiceImpl implements UserService {
     public List<UserVO> getStudentsByClassIds(List<Integer> classIds) {
         return userMapper.getStudentsByClassIds(classIds);
     }
+
+    /**
+     * 获取总学生数
+     * @return
+     */
+    public Long getTotalStudentCount() {
+        return userMapper.countTotalStudents();
+    }
+
+    /**
+     * 获取今日新增学生数
+     * @return
+     */
+    @Override
+    public Long getTodayNewStudentCount() {
+        return userMapper.countTodayNewStudents();
+    }
+
+
 }

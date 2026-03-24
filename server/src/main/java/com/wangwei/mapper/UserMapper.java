@@ -1,7 +1,6 @@
 package com.wangwei.mapper;
 
 import com.wangwei.dto.LoginDTO;
-import com.wangwei.entity.User;
 import com.wangwei.vo.LoginVO;
 import com.wangwei.vo.UserVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -16,6 +15,7 @@ public interface UserMapper {
 
     /**
      * 根据用户ID获取用户信息
+     *
      * @param userId 用户ID
      * @return 用户信息
      */
@@ -24,8 +24,28 @@ public interface UserMapper {
 
     /**
      * 根据班级ID获取学生列表
+     *
      * @param classIds 班级ID 列表，用逗号分隔
      * @return 学生列表
      */
     List<UserVO> getStudentsByClassIds(List<Integer> classIds);
+
+    /**
+     * 获取总学生数
+     *
+     * @return
+     */
+    @Select("SELECT COUNT(*) FROM t_user WHERE role = 0")
+    Long countTotalStudents();
+
+    /**
+     * 获取今日新增学生数
+     *
+     * @return
+     */
+    @Select("SELECT COUNT(*) FROM t_user " +
+            "WHERE role = 0 " +
+            "AND create_time >= CURDATE() " +
+            "AND create_time < DATE_ADD(CURDATE(), INTERVAL 1 DAY)")
+    Long countTodayNewStudents();
 }
