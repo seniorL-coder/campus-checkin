@@ -1,7 +1,9 @@
 package com.wangwei.service;
 
 import com.wangwei.dto.CheckInDTO;
+import com.wangwei.dto.CheckInQueryDTO;
 import com.wangwei.entity.CheckIn;
+import com.wangwei.result.PageResult;
 import com.wangwei.vo.AttendanceVO;
 import com.wangwei.vo.CheckInVO;
 
@@ -37,4 +39,18 @@ public interface CheckInService {
      * @return
      */
     AttendanceVO getAttendance();
+
+    /**
+     * 分页获取签到记录
+     * @param checkInQueryDTO 签到查询条件
+     * @return 签到记录分页结果
+     */
+    PageResult<CheckInVO> list(CheckInQueryDTO checkInQueryDTO);
+
+    /**
+     * 修改学生签到状态
+     * @param activityId 活动ID
+     * @param status 签到状态 0-未签到 1-已签到 2-缺勤 3-范围外签到
+     */
+    void updateCheckInStatus(Long userId, Long activityId, Integer status);
 }

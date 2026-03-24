@@ -35,6 +35,20 @@
           AND check_time IS NULL
           AND status = 0
     </update>
+    <update id="updateCheckInStatus">
+        UPDATE t_check_in
+        <set>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="checkTime != null">
+                check_time = #{checkTime},
+            </if>
+        </set>
+        WHERE user_id = #{userId}
+        AND activity_id = #{activityId}
+
+    </update>
 
     <select id="selectTodaySchedule" resultType="com.wangwei.vo.CheckInVO">
         SELECT c.id,
@@ -89,6 +103,32 @@
         FROM t_check_in c
                  JOIN t_activity a ON c.activity_id = a.id
         WHERE c.user_id = #{userId}
+    </select>
+    <select id="list" resultType="com.wangwei.vo.CheckInVO">
+        SELECT c.id,
+        c.activity_id,
+        a.title AS activityTitle,
+        u.real_name AS userName,
+        c.user_id,
+        a.start_time,
+        a.end_time,
+        c.check_time,
+        c.status,
+        a.status AS activityStatus,
+        a.longitude,
+        a.latitude
+        FROM t_check_in c
+        LEFT JOIN t_activity a ON c.activity_id = a.id
+        left join t_user u on c.user_id = u.id
+        <where>
+            <if test="activityTitle != '' and activityTitle != null">
+                AND a.title LIKE CONCAT('%', #{activityTitle}, '%')
+            </if>
+            <if test="userName != '' and userName != null">
+                AND u.real_name LIKE CONCAT('%', #{userName}, '%')
+            </if>
+        </where>
+        order by a.create_time desc
     </select>
 
 </mapper>

@@ -13,6 +13,10 @@ public class CheckInVO {
     private Long id;
     @Schema(description = "活动ID")
     private Long activityId;
+    @Schema(description = "学生ID")
+    private Long userId;
+    @Schema(description = "学生姓名")
+    private String userName;
     @Schema(description = "活动标题")
     private String activityTitle;
 

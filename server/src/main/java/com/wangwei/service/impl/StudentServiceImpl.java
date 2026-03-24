@@ -138,6 +138,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void logout() {
         Long userId = BaseContext.getCurrentId();
+        log.info("redisTemplate delete: {}", REDIS_TOKEN_KEY + userId);
         redisTemplate.delete(REDIS_TOKEN_KEY + userId);
 
     }

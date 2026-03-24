@@ -288,9 +288,26 @@ public class ActivityServiceImpl implements ActivityService {
         // 推送通知
         studentIds.forEach(id -> {
             try {
-                userWebSocketServer.sendToOne(id.toString(), "您有一个新的班级活动通知，请及时查看！");
+                // 1. 构造消息外层结构
+                Map<String, Object> msg = new HashMap<>();
+                msg.put("type", "NEW_ACTIVITY"); // 消息类型，前端根据这个字符串分发逻辑
+
+                // 2. 构造具体的业务数据 (Data)
+                Map<String, Object> activityData = new HashMap<>();
+                activityData.put("id", activity.getId());
+                activityData.put("title", activity.getTitle());
+                activityData.put("startTime", activity.getStartTime().toString());
+
+                // 将业务数据放入外层消息
+                msg.put("data", activityData);
+
+                // 3. 执行推送 (假设 id 是 String 类型的 userId)
+                userWebSocketServer.sendJson(String.valueOf(id), msg);
+
+                log.info("已向用户 {} 推送新活动通知: {}", id, activity.getTitle());
+
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                log.error("推送新活动消息失败", e);
             }
         });
 

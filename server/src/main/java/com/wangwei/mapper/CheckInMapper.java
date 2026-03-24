@@ -1,5 +1,6 @@
 package com.wangwei.mapper;
 
+import com.wangwei.dto.CheckInQueryDTO;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.vo.AttendanceVO;
 import com.wangwei.vo.CheckInVO;
@@ -32,7 +33,6 @@ public interface CheckInMapper {
      *
      * @param checkIn 签到记录
      */
-    @Update("UPDATE t_check_in SET status = #{status}, check_time = #{checkTime} WHERE user_id = #{userId} AND activity_id = #{activityId}")
     void updateCheckInStatus(CheckIn checkIn);
 
     /**
@@ -60,4 +60,12 @@ public interface CheckInMapper {
      * 同步更新过期活动的签到记录状态
      */
     void updateAbsentStatusByFinishedActivities();
+
+
+    /**
+     * 根据条件查询签到记录
+     * @param checkInQueryDTO 签到记录查询条件
+     * @return 签到记录列表
+     */
+    List<CheckInVO> list(CheckInQueryDTO checkInQueryDTO);
 }

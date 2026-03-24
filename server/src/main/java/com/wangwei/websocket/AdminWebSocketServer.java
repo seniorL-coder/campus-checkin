@@ -1,5 +1,6 @@
 package com.wangwei.websocket;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wangwei.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 @RequiredArgsConstructor
 public class AdminWebSocketServer extends TextWebSocketHandler {
+    private final ObjectMapper objectMapper;
 
     private static final String LOGIN_USER_KEY = "login:user:";
 
@@ -68,23 +70,34 @@ public class AdminWebSocketServer extends TextWebSocketHandler {
         log.info("WebSocket 连接断开：{}", session.getId());
     }
 
-    // 单发
-    public void sendToOne(String sid, String msg) throws Exception {
+    // 发送对象消息（自动转 JSON）
+    public void sendJson(String sid, Object obj) {
         WebSocketSession session = SESSION_MAP.get(sid);
-        if (session != null && session.isOpen()) {
-            session.sendMessage(new TextMessage(msg));
-        }
-    }
-
-    // 群发
-    public void sendToAll(String msg) throws Exception {
-        for (WebSocketSession session : SESSION_MAP.values()) {
-            if (session.isOpen()) {
-                session.sendMessage(new TextMessage(msg));
+        try {
+            if (session != null && session.isOpen()) {
+                // 将对象转为 JSON 字符串
+                String json = objectMapper.writeValueAsString(obj);
+                session.sendMessage(new TextMessage(json));
             }
+        } catch (Exception e) {
+            log.error("发送 WebSocket 消息失败，userId: {}", sid, e);
         }
     }
 
+    // 批量发送对象
+    public void sendJsonToAll(Object obj) {
+        try {
+            String json = objectMapper.writeValueAsString(obj);
+            TextMessage textMessage = new TextMessage(json);
+            for (WebSocketSession session : SESSION_MAP.values()) {
+                if (session.isOpen()) {
+                    session.sendMessage(textMessage);
+                }
+            }
+        } catch (Exception e) {
+            log.error("群发消息失败", e);
+        }
+    }
     private String getToken(String query) {
         if (query == null) return null;
 

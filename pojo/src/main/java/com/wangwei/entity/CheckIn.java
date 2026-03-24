@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 签到流水实体类
@@ -18,7 +19,7 @@ public class CheckIn {
     private Long id;
     private Long userId;
     private Long activityId;
-    private String checkTime;
+    private LocalDateTime checkTime;
     // 签到时的经度
     private Double lon;
     // 签到时的纬度

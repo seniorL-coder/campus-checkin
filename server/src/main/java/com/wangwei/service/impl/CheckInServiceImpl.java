@@ -1,14 +1,18 @@
 package com.wangwei.service.impl;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.wangwei.context.BaseContext;
 import com.wangwei.dto.CheckInDTO;
+import com.wangwei.dto.CheckInQueryDTO;
 import com.wangwei.entity.Activity;
 import com.wangwei.entity.CheckIn;
 import com.wangwei.enumeration.ActivityStatus;
 import com.wangwei.enumeration.CheckInStatus;
 import com.wangwei.exception.*;
 import com.wangwei.mapper.CheckInMapper;
+import com.wangwei.result.PageResult;
 import com.wangwei.result.Result;
 import com.wangwei.service.ActivityService;
 import com.wangwei.service.CheckInService;
@@ -25,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -81,13 +87,16 @@ public class CheckInServiceImpl implements CheckInService {
         if (now.isBefore(startTime) || now.isAfter(endTime)) {
             throw new CheckInTimeOutOfRangeException("签到时间不在活动时间内");
         }
+        if (record.getStatus() == 2) { // 已经缺勤, 禁止
+            throw new AlreadyAbsentException("已经缺勤, 禁止签到");
+        }
         // 4. 判断签到地点是否在活动地点附近
         double distance = GeoUtils.distance(checkInDTO.getLon(), checkInDTO.getLat(), longitude, latitude);
         if (distance > radius) {
             CheckIn checkIn = CheckIn.builder()
                     .userId(userId)
                     .activityId(activityId)
-                    .checkTime(LocalDateTime.now().toString())
+                    .checkTime(LocalDateTime.now())
                     .status(3).build();
             checkInMapper.updateCheckInStatus(checkIn); // 3: 签到距离超过目标范围
             throw new DistanceOverTargetRadiusException("签到距离超过目标范围, 距离边界" + radius + "米");
@@ -96,13 +105,31 @@ public class CheckInServiceImpl implements CheckInService {
         CheckIn checkIn = CheckIn.builder()
                 .userId(userId)
                 .activityId(activityId)
-                .checkTime(LocalDateTime.now().toString())
+                .checkTime(LocalDateTime.now())
                 .status(1).build();
         checkInMapper.updateCheckInStatus(checkIn); // 1: 已签到
         try {
-            adminWebSocketServer.sendToOne(String.valueOf(activity.getCreateUserId()), "学生 " + userId + " 已签到");
+            // 1. 构造推送给老师的数据
+            Map<String, Object> msg = new HashMap<>();
+            msg.put("type", "STUDENT_SIGNED_IN"); // 定义一个特定的类型
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("userId", userId);
+            data.put("activityId", activity.getId());
+            data.put("checkTime", LocalDateTime.now().toString());
+            // data.put("userName", userName);
+
+            msg.put("data", data);
+
+            // 2. 推送给创建该活动的老师 (注意：确保 sid 与登录时存入 SESSION_MAP 的 Key 一致)
+            String teacherId = String.valueOf(activity.getCreateUserId());
+            adminWebSocketServer.sendJson(teacherId, msg);
+
+            log.info("已向老师 {} 推送学生 {} 的签到成功通知", teacherId, userId);
+
         } catch (Exception e) {
-            log.error("发送签到通知失败", e);
+            // 签到通知失败不应影响学生签到的主业务逻辑，记录日志即可
+            log.error("发送签到实时通知失败，studentId: {}, activityId: {}", userId, activity.getId(), e);
         }
     }
 
@@ -196,6 +223,39 @@ public class CheckInServiceImpl implements CheckInService {
         vo.setAttendanceRate(Math.round(rate * 100.0) / 100.0); // 保留2位小数
 
         return vo;
+    }
+
+    @Override
+    public PageResult<CheckInVO> list(CheckInQueryDTO checkInQueryDTO) {
+        Integer page = checkInQueryDTO.getPage();
+        Integer pageSize = checkInQueryDTO.getLimit();
+        PageHelper.startPage(page, pageSize);
+        List<CheckInVO> list = checkInMapper.list(checkInQueryDTO);
+        Page<CheckInVO> pageInfo = (Page<CheckInVO>) list;
+        List<CheckInVO> result = pageInfo.getResult();
+        // 判断活动时间 (1, 活动时间过期 将活动状态更新为已结束)
+        for (CheckInVO item : result) {
+            if (item.getEndTime().isBefore(LocalDateTime.now()) && item.getCheckTime() == null) {
+                item.setActivityStatus(ActivityStatus.FINISHED.getCode());
+                item.setStatus(CheckInStatus.ABSENT.getCode());
+                activityService.updateActivityStatusToFinished(item.getActivityId());
+            }
+        }
+
+
+        return new PageResult<>(pageInfo.getPageNum(), pageInfo.getPages(), pageInfo.getPageSize(), pageInfo.getTotal(), result);
+    }
+
+    /**
+     * 更新签到状态
+     * @param userId 用户ID
+     * @param activityId 活动ID
+     * @param status 签到状态 0-未签到 1-已签到 2-缺勤 3-范围外签到
+     */
+    @Override
+    public void updateCheckInStatus(Long userId, Long activityId, Integer status) {
+        CheckIn checkIn = CheckIn.builder().userId(userId).activityId(activityId).status(status).checkTime(LocalDateTime.now()).build();
+        checkInMapper.updateCheckInStatus(checkIn);
     }
 
 }
