@@ -1,12 +1,12 @@
 sky:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    host: localhost
+    host: campus_checkin_mysql
     port: 3306
     database: campus_checkin_db
     username: root
     password: 123456
   redis:
-    host: localhost
+    host: campus_checkin_redis
     port: 6379
     database: 0
