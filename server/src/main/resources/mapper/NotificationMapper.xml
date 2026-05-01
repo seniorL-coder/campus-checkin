@@ -47,4 +47,12 @@
             read_time = #{readTime}
         WHERE id = #{id}
     </update>
+
+    <delete id="deleteByActivityId">
+        DELETE FROM t_notification WHERE activity_id = #{activityId}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM t_notification WHERE user_id = #{userId}
+    </delete>
 </mapper>

@@ -3,6 +3,7 @@ package com.wangwei.service;
 import com.wangwei.dto.StudentDTO;
 import com.wangwei.dto.StudentLoginDTO;
 import com.wangwei.dto.StudentQueryDTO;
+import com.wangwei.dto.UpdateStudentDTO;
 import com.wangwei.entity.Student;
 import com.wangwei.result.PageResult;
 import com.wangwei.vo.LoginVO;
@@ -35,4 +36,16 @@ public interface StudentService {
      * 登出
      */
     void logout();
+
+    /**
+     * 删除学生
+     * @param id 学生ID
+     */
+    void delete(Long id);
+
+    /**
+     * 修改学生信息
+     * @param updateStudentDTO 修改信息
+     */
+    void update(UpdateStudentDTO updateStudentDTO);
 }

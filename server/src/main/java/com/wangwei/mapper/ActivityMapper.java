@@ -71,4 +71,10 @@ public interface ActivityMapper {
      * @param now 当前时间
      */
     void startStartedActivities(LocalDateTime now);
+
+    /**
+     * 根据id删除活动记录
+     * @param id 活动ID
+     */
+    void deleteById(Long id);
 }

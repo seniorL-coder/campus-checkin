@@ -47,5 +47,17 @@ public interface NotificationMapper {
      */
     void updateOneRead(@Param("id") Long id,
                        @Param("readTime") LocalDateTime readTime);
+
+    /**
+     * 根据活动ID删除通知记录
+     * @param activityId 活动ID
+     */
+    void deleteByActivityId(@Param("activityId") Long activityId);
+
+    /**
+     * 根据用户ID删除通知记录
+     * @param userId 用户ID
+     */
+    void deleteByUserId(@Param("userId") Long userId);
 }
 

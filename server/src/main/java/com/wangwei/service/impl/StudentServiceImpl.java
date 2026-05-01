@@ -7,9 +7,12 @@ import com.wangwei.context.BaseContext;
 import com.wangwei.dto.StudentDTO;
 import com.wangwei.dto.StudentLoginDTO;
 import com.wangwei.dto.StudentQueryDTO;
+import com.wangwei.dto.UpdateStudentDTO;
 import com.wangwei.entity.Student;
 import com.wangwei.exception.PasswordErrorException;
+import com.wangwei.mapper.CheckInMapper;
 import com.wangwei.mapper.ClassTeacherRelationMapper;
+import com.wangwei.mapper.NotificationMapper;
 import com.wangwei.mapper.StudentMapper;
 import com.wangwei.properties.JwtProperties;
 import com.wangwei.result.PageResult;
@@ -42,6 +45,8 @@ public class StudentServiceImpl implements StudentService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final StudentMapper studentMapper;
     private final ClassTeacherRelationMapper classTeacherRelationMapper;
+    private final CheckInMapper checkInMapper;
+    private final NotificationMapper notificationMapper;
     private final JwtUtils jwtUtils;
     private final JwtProperties jwtProperties;
 
@@ -161,5 +166,36 @@ public class StudentServiceImpl implements StudentService {
         log.info("redisTemplate delete: {}", REDIS_TOKEN_KEY + userId);
         redisTemplate.delete(REDIS_TOKEN_KEY + userId);
 
+    }
+
+    /**
+     * 删除学生
+     *
+     * @param id 学生ID
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void delete(Long id) {
+        log.info("删除学生, id: {}", id);
+        // 1. 删除签到流水记录
+        checkInMapper.deleteByUserId(id);
+        // 2. 删除通知记录
+        notificationMapper.deleteByUserId(id);
+        // 3. 删除 Redis 登录令牌
+        redisTemplate.delete(REDIS_TOKEN_KEY + id);
+        // 4. 删除学生本身
+        studentMapper.deleteById(id);
+    }
+
+    /**
+     * 修改学生信息
+     *
+     * @param updateStudentDTO 修改信息
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void update(UpdateStudentDTO updateStudentDTO) {
+        log.info("修改学生信息: {}", updateStudentDTO);
+        studentMapper.update(updateStudentDTO);
     }
 }

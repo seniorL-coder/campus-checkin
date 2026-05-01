@@ -64,6 +64,12 @@ public interface ActivityService {
     void closeExpiredActivities();
 
     /**
+     * 删除活动（同时清理关联的签到记录、通知和 Redis 缓存）
+     * @param id 活动ID
+     */
+    void deleteActivity(Long id);
+
+    /**
      * 开启已经开始的活动
      */
     void startStartedActivities();

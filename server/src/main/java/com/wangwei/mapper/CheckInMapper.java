@@ -61,6 +61,12 @@ public interface CheckInMapper {
      */
     void updateAbsentStatusByFinishedActivities();
 
+    /**
+     * 根据活动ID删除签到记录
+     * @param activityId 活动ID
+     */
+    void deleteByActivityId(Long activityId);
+
 
     /**
      * 根据条件查询签到记录
@@ -68,4 +74,10 @@ public interface CheckInMapper {
      * @return 签到记录列表
      */
     List<CheckInVO> list(CheckInQueryDTO checkInQueryDTO);
+
+    /**
+     * 根据用户ID删除签到记录
+     * @param userId 用户ID
+     */
+    void deleteByUserId(Long userId);
 }

@@ -131,4 +131,12 @@
         order by a.create_time desc
     </select>
 
+    <delete id="deleteByActivityId">
+        DELETE FROM t_check_in WHERE activity_id = #{activityId}
+    </delete>
+
+    <delete id="deleteByUserId">
+        DELETE FROM t_check_in WHERE user_id = #{userId}
+    </delete>
+
 </mapper>

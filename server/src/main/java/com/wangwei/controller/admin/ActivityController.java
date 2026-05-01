@@ -81,4 +81,13 @@ public class ActivityController {
         activityService.initCheckInList(id);
         return Result.success();
     }
+
+    // 删除活动
+    @Operation(summary = "删除活动")
+    @DeleteMapping("/{id}")
+    public Result<String> deleteActivity(@PathVariable Long id) {
+        log.info("删除活动：{}", id);
+        activityService.deleteActivity(id);
+        return Result.success("删除成功");
+    }
 }

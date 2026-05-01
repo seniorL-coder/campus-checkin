@@ -314,6 +314,32 @@ public class ActivityServiceImpl implements ActivityService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteActivity(Long id) {
+        // 1. 校验活动是否存在
+        Activity activity = activityMapper.getActivityById(id);
+        if (activity == null) {
+            throw new ActivityNotFoundException("活动不存在");
+        }
+        // 2. 校验当前用户是否为活动的创建者
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(Long.valueOf(activity.getCreateUserId()))) {
+            throw new IllegalArgumentException("只能删除自己创建的活动");
+        }
+        // 3. 清理 Redis 签到 Token
+        redisTemplate.delete(SIGN_TOKEN_PREFIX + id);
+        // 4. 删除签到流水记录
+        checkInMapper.deleteByActivityId(id);
+        // 5. 删除消息通知记录
+        notificationMapper.deleteByActivityId(id);
+        // 6. 删除活动本身
+        activityMapper.deleteById(id);
+    }
+
+    /**
+     * 关闭过期活动
+     */
+    @Override
     public void closeExpiredActivities() {
 
         LocalDateTime now = LocalDateTime.now();
@@ -328,6 +354,9 @@ public class ActivityServiceImpl implements ActivityService {
 
     }
 
+    /**
+     * 开始进行中的活动
+     */
     @Override
     public void startStartedActivities() {
         LocalDateTime now = LocalDateTime.now();

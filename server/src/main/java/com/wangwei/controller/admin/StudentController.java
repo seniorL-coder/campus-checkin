@@ -2,6 +2,7 @@ package com.wangwei.controller.admin;
 
 import com.wangwei.dto.StudentDTO;
 import com.wangwei.dto.StudentQueryDTO;
+import com.wangwei.dto.UpdateStudentDTO;
 import com.wangwei.result.PageResult;
 import com.wangwei.result.Result;
 import com.wangwei.service.StudentService;
@@ -10,7 +11,10 @@ import com.wangwei.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,5 +39,19 @@ public class StudentController {
     public Result<String> add(@RequestBody StudentDTO studentDTO) {
         studentService.add(studentDTO);
         return Result.success("添加成功");
+    }
+
+    @Operation(summary = "删除学生")
+    @DeleteMapping("/{id}")
+    public Result<String> delete(@PathVariable Long id) {
+        studentService.delete(id);
+        return Result.success("删除成功");
+    }
+
+    @Operation(summary = "修改学生信息")
+    @PutMapping
+    public Result<String> update(@RequestBody UpdateStudentDTO updateStudentDTO) {
+        studentService.update(updateStudentDTO);
+        return Result.success("修改成功");
     }
 }

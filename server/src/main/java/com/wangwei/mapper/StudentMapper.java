@@ -2,6 +2,7 @@ package com.wangwei.mapper;
 
 import com.wangwei.annotation.AutoFill;
 import com.wangwei.dto.StudentQueryDTO;
+import com.wangwei.dto.UpdateStudentDTO;
 import com.wangwei.entity.Student;
 import com.wangwei.enumeration.OperationType;
 import com.wangwei.vo.ClassVO;
@@ -26,6 +27,19 @@ public interface StudentMapper {
 
     // 根据学生id查询自己班级信息
     ClassVO getStudentClassById(Long classId);
+
+    /**
+     * 根据ID删除学生
+     * @param id 学生ID
+     */
+    void deleteById(Long id);
+
+    /**
+     * 更新学生信息
+     * @param updateStudentDTO 更新信息
+     */
+    void update(UpdateStudentDTO updateStudentDTO);
+
     /**
      * 学生登录
      * @param username 用户名

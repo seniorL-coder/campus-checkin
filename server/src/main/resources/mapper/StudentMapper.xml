@@ -41,6 +41,27 @@
         </where>
         order by tu.update_time desc, tu.id desc
     </select>
+    <delete id="deleteById">
+        DELETE FROM t_user WHERE id = #{id}
+    </delete>
+
+    <update id="update" parameterType="com.wangwei.dto.UpdateStudentDTO">
+        UPDATE t_user
+        <set>
+            <if test="realName != null and realName != ''">
+                real_name = #{realName},
+            </if>
+            <if test="username != null and username != ''">
+                username = #{username},
+            </if>
+            <if test="classId != null">
+                class_id = #{classId},
+            </if>
+            update_time = NOW(),
+        </set>
+        WHERE id = #{id}
+    </update>
+
     <select id="getStudentClassById" resultType="com.wangwei.vo.ClassVO">
         select tc.id        as classId,
                tc.class_name,

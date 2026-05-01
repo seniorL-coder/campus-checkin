@@ -109,5 +109,9 @@
           AND status = 0
     </update>
 
+    <delete id="deleteById">
+        DELETE FROM t_activity WHERE id = #{id}
+    </delete>
+
 
 </mapper>
